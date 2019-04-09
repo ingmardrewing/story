@@ -24,8 +24,6 @@ class Control {
     s.scenes.forEach(function(params){
       c.addScene(params);
     });
-
-    console.log(model);
   }
 
   addValue(valueName) {

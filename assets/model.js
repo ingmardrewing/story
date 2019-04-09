@@ -32,6 +32,10 @@ class Model {
   addScene(scene) {
     this.story.addScene(scene);
   }
+
+  getScenes() {
+    return this.story.getScenes();
+  }
 }
 
 class Location {
@@ -118,6 +122,7 @@ class Scene {
     this.title = params.title;
     this.description= params.description;
     this.t = params.t;
+    this.suspense = params.suspense;
     this.characters = characters;
     this.values= values;
   }
