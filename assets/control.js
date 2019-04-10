@@ -43,15 +43,6 @@ class Control {
 
   addScene (params) {
     let characters = [];
-    let values = [];
-    let locations = [];
-
-    for (let val in params.values) {
-      let v = this.model.getStoryValueByName(val);
-      if (v) {
-        values.push(v);
-      }
-    }
 
     for (let charName in params.characters) {
       let char = this.model.getCharacterByName(charName);
@@ -60,14 +51,9 @@ class Control {
       }
     }
 
-    for (let loc in params.locations) {
-      let l = this.model.getLocationByName(loc);
-      if(l) {
-        locations.push(l);
-      }
-    }
+    let loc = this.model.getLocationByName(params.location);
 
-    let scene = new Scene(params, characters, values, locations);
+    let scene = new Scene(params, characters,  loc);
     this.model.addScene(scene);
   }
 }

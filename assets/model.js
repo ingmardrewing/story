@@ -21,6 +21,14 @@ class Model {
     return this.story.getStoryValueByName(valName);
   }
 
+  getValuesObject() {
+    let vo = {};
+    for(let v of this.story.values) {
+      vo[v.name] = 0;
+    }
+    return vo;
+  }
+
   addLocation(location) {
     this.story.addLocation(location)
   }
@@ -113,18 +121,19 @@ class Scene {
   t;
   title;
   description;
+  location;
   characters;
   values;
   conflict;
-  suspense;
+  dragged = false;
 
-  constructor(params, characters, values ) {
+  constructor(params, characters, location) {
     this.title = params.title;
     this.description= params.description;
     this.t = params.t;
-    this.suspense = params.suspense;
+    this.location = location;
     this.characters = characters;
-    this.values= values;
+    this.values = params.values;
   }
 
   addCharacter(char) {
