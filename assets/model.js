@@ -38,6 +38,7 @@ class Model {
   }
 
   addScene(scene) {
+    console.log(scene.type);
     this.story.addScene(scene);
   }
 
@@ -61,6 +62,13 @@ class Story {
   characters;
   values;
   locations;
+
+  throughlines = {
+    OBJECTIVE: Symbol("objective"),
+    RELATIONSHIP: Symbol("relationship"),
+    MAIN_CHARACTER: Symbol("main charachter"),
+    INFLUENCE_CHARACTER: Symbol("influence character")
+  };
 
   constructor(){
     this.locations = [];
@@ -108,6 +116,10 @@ class Story {
       }
     }
   }
+
+  limitKeyScenes() {
+
+  }
 }
 
 class StoryValue {
@@ -117,15 +129,31 @@ class StoryValue {
   }
 }
 
+const TypeNames = {
+  INCITING_INCIDENT: "Inciting Incident",
+  PLOT_POINT_I: "Plot Point 1",
+  CENTRAL_POINT: "Central Point",
+  PLOT_POINT_II: "Plot Point 2",
+  CLIMAX: "Climax",
+  REGULAR_SCENE: "Regular Scene"
+};
+Object.freeze(TypeNames);
+
 class Scene {
+  lowerLimit = 0;
+  upperLimit = 1;
+
   t;
+  values;
+  dragged = false;
+
   title;
   description;
   location;
   characters;
-  values;
   conflict;
-  dragged = false;
+  throughline;
+  type = TypeNames.REGULAR_SCENE;
 
   constructor(params, characters, location) {
     this.title = params.title;
@@ -133,12 +161,43 @@ class Scene {
     this.t = params.t;
     this.location = location;
     this.characters = characters;
+    this.throughline = params.throughline;
     this.values = params.values;
   }
 
   addCharacter(char) {
     this.characters.push(char);
   }
+}
+
+class IncitingIncident extends Scene { 
+  type = TypeNames.INCITING_INCIDENT;
+  lowerLimit = 0;
+  upperLimit = 0.25;
+}
+
+class PlotPoint1 extends Scene { 
+  type = TypeNames.PLOT_POINT_I;
+  lowerLimit = 0.25;
+  upperLimit = 0.25;
+}
+
+class CentralPoint extends Scene { 
+  type = TypeNames.CENTRAL_POINT;
+  lowerLimit = 0.5;
+  upperLimit = 0.5;
+}
+
+class PlotPoint2 extends Scene { 
+  type = TypeNames.PLOT_POINT_II;
+  lowerLimit = 0.75;
+  upperLimit = 0.75;
+}
+
+class Climax extends Scene { 
+  type = TypeNames.CLIMAX;
+  lowerLimit = 0.75;
+  upperLimit = 1;
 }
 
 const characterArchetypes = {

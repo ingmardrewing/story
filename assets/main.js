@@ -40,6 +40,7 @@ function setup() {
     ],
     scenes: [
       {
+        type: "Inciting Incident",
         title: "Start delivery",
         description: "...",
         t: 0.2,
@@ -52,6 +53,20 @@ function setup() {
         characters: ["Red Riding Hood"]
       },
       {
+        type: "Regular Scene",
+        title: "A short intermission",
+        description: "...",
+        t: 0.5,
+        location: "Ad Space",
+        values: {
+          "Suspense": 0.0,
+          "Life": 0.1
+        },
+        conflict: "",
+        characters: []
+      },
+      {
+        type: "Central Point",
         title: "Wolf attacks",
         description: "...",
         t: 0.5,
@@ -64,6 +79,7 @@ function setup() {
         characters: ["Red Riding Hood", "Wolf"]
       },
       {
+        type: "Climax",
         title: "Hunter guts wolf",
         description: "...",
         t: 0.8,
@@ -138,7 +154,9 @@ function mouseDragged(e) {
   let scenes = model.getScenes();
   for (let s of scenes) {
     if (s.dragged) {
-      s.t = mouseX / w;
+      let t = mouseX / w ;
+      s.t = t < s.lowerLimit ? s.lowerLimit :
+            t > s.upperLimit ? s.upperLimit : t;
       s.values[view.scope] = mouseY / h;
       return false;
     }

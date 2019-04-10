@@ -53,7 +53,31 @@ class Control {
 
     let loc = this.model.getLocationByName(params.location);
 
-    let scene = new Scene(params, characters,  loc);
-    this.model.addScene(scene);
+    switch(params.type) {
+      case TypeNames.INCITING_INCIDENT: {
+        this.model.addScene(new IncitingIncident(params, characters,  loc));
+        break;
+      }
+      case TypeNames.PLOT_POINT_I: {
+        this.model.addScene(new PlotPoint1(params, characters, loc));
+        break;
+      }
+      case TypeNames.CENTRAL_POINT: {
+        this.model.addScene(new CentralPoint(params, characters, loc));
+        break;
+      }
+      case TypeNames.PLOT_POINT_II: {
+        this.model.addScene(new PlotPoint2(params, characters, loc));
+        break;
+      }
+      case TypeNames.CLIMAX: {
+        this.model.addScene(new Climax(params, characters, loc));
+        break;
+      }
+      default: {
+        this.model.addScene(new Scene(params, characters, loc));
+        break;
+      }
+    }
   }
 }
