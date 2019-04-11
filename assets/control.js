@@ -51,19 +51,28 @@ class Control {
 
     model.addScene(new Scene(params, characters, loc, type));
   }
+
   addUi(id) {
     for( let v in model.getValuesObject()) {
-      var link = document.createElement("a");
-      link.setAttribute("href", "javascript:selectValue('"+v+"');")
-      link.appendChild(document.createTextNode(v));
-      var br = document.createElement("br")
-      document.getElementById(id).appendChild(link);
-      document.getElementById(id).appendChild(br);
+      addLink(v, "selectValue", id);
     }
   }
 }
 
+function addLink(arg, fn, id) {
+  var link = document.createElement("a");
+  link.setAttribute("href", "javascript:"+fn+"('"+arg+"');")
+  link.appendChild(document.createTextNode(arg));
+  var br = document.createElement("br")
+  document.getElementById(id).appendChild(link);
+  document.getElementById(id).appendChild(br);
+}
+
 function createSceneAt(x, y) {
+  console.log(x, y);
+  if (x < 0 || y < 0) {
+    return;
+  }
   let vo = model.getValuesObject();
   vo[view.scope] = mouseY / view.h;
   control.addScene({

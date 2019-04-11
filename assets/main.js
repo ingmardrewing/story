@@ -46,8 +46,8 @@ function setup() {
         location: "Forest",
         throughline: "MAIN_CHARACTER",
         values: {
-          "Suspense": 0.4,
-          "Life": 0.9
+          "Suspense": 0.5,
+          "Life": 0.5
         },
         conflict: "RRH begins her travel in order to deliver the food",
         characters: ["Red Riding Hood"]
@@ -56,12 +56,12 @@ function setup() {
         type: "REGULAR_SCENE",
         title: "A short intermission",
         description: "...",
-        t: 0.5,
+        t: 0.3,
         location: "Ad Space",
         throughline: "OBJECTIVE",
         values: {
-          "Suspense": 0.0,
-          "Life": 0.1
+          "Suspense": 0.5,
+          "Life": 0.5
         },
         conflict: "",
         characters: []
@@ -70,12 +70,12 @@ function setup() {
         type: "REGULAR_SCENE",
         title: "Monologue of the wolf",
         description: "...",
-        t: 0.5,
+        t: 0.4,
         location: "Forest",
         throughline: "INFLUENCE_CHARACTER",
         values: {
-          "Suspense": 0.0,
-          "Life": 0.1
+          "Suspense": 0.5,
+          "Life": 0.5
         },
         conflict: "",
         characters: ["Wolf"]
@@ -84,12 +84,12 @@ function setup() {
         type: "CENTRAL_POINT",
         title: "Wolf attacks",
         description: "...",
-        t: 0.5,
+        t: 0.7,
         location: "Forest",
         throughline: "RELATIONSHIP",
         values: {
           "Suspense": 0.5,
-          "Life": 0.1
+          "Life": 0.5
         },
         conflict: "RRH wants to deliver food; Wolf eats her first.",
         characters: ["Red Riding Hood", "Wolf"]
@@ -102,8 +102,8 @@ function setup() {
         location: "Granny's Home",
         throughline: "RELATIONSHIP",
         values: {
-          "Suspense": 0.1,
-          "Life": 1.0
+          "Suspense": 0.5,
+          "Life": 0.5
         },
         conflict: "Wolf wants to stay alive; Hunter cuts wolf open",
         characters: ["Hunter", "Wolf", "Granny", "Red Riding Hood"]
@@ -115,11 +115,22 @@ function setup() {
 
 function draw() {
   clear();
+  let lastX = -1;
+  let lastY = -1;
+  stroke(102);
+  view.sceneSprites.sort(function(a, b){return a.x-b.x;});
   for (let s of view.sceneSprites) {
-    fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     if(!s.dragged) {
       s.approxPosition();
     }
+    if (lastX >= 0 && lastY >= 0) {
+      line(lastX, lastY, s.x, s.y);
+    }
+    lastX = s.x;
+    lastY = s.y;
+  }
+  for (let s of view.sceneSprites) {
+    fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
   }
 }
@@ -163,6 +174,7 @@ function mouseReleased(e) {
       s.writeToModel();
       s.readDestinationFromModel();
       s.syncPosition();
+      model.sort();
       view.update();
     }
   }

@@ -7,7 +7,7 @@ Object.freeze(color);
 
 class  View {
   scope = "Suspense";
-  sceneRadius = 30;
+  sceneRadius = 20;
   sceneSprites;
 
   w = 1000;

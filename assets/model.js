@@ -86,30 +86,11 @@ class Model {
     }
     return SceneTypeNames.REGULAR_SCENE;
   }
-}
 
-// TODO: Use for characters, locations, throughlines, story values
-class Spreader {
-  table = {}
-
-  constructor(keyOnTargetObjects) {
-    this.keyOnTargetObjects = keyOnTargetObjects;
-  }
-
-  applyOnObjects(objects) {
-    for (let o of objects) {
-      for (let v in this.table) {
-        o[v] = this.table[v];
-      }
-    }
-  }
-
-  addKeyValue(key, value) {
-    table[key] = value;
-  }
-
-  freeze() {
-    Object.freeze(this.table);
+  sort() {
+    this.story.scenes.sort(function(a,b){
+      return a.t - b.t;
+    });
   }
 }
 
@@ -129,7 +110,7 @@ class Story {
   values;
   locations;
 
-    constructor(){
+  constructor(){
     this.locations = [];
     this.scenes = [];
     this.values = [];
