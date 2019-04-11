@@ -110,6 +110,7 @@ function setup() {
       }
     ],
   });
+  control.addUi("proxyui");
 }
 
 function draw() {

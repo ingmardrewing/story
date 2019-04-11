@@ -51,6 +51,16 @@ class Control {
 
     model.addScene(new Scene(params, characters, loc, type));
   }
+  addUi(id) {
+    for( let v in model.getValuesObject()) {
+      var link = document.createElement("a");
+      link.setAttribute("href", "javascript:selectValue('"+v+"');")
+      link.appendChild(document.createTextNode(v));
+      var br = document.createElement("br")
+      document.getElementById(id).appendChild(link);
+      document.getElementById(id).appendChild(br);
+    }
+  }
 }
 
 function createSceneAt(x, y) {
