@@ -1,11 +1,4 @@
 class Control {
-  model;
-  view;
-
-  constructor(model, view) {
-    this.model = model;
-    this.view = view;
-  }
 
   init(s) {
     model.story = new Story();
@@ -24,60 +17,54 @@ class Control {
     s.scenes.forEach(function(params){
       c.addScene(params);
     });
+
+    view.updateSceneSprites();
   }
 
   addValue(valueName) {
     let value = new StoryValue(valueName);
-    this.model.addStoryValue(value);
+    model.addStoryValue(value);
   }
 
   addCharacter(params) {
     let char = new Character(params);
-    this.model.addCharacter(char);
+    model.addCharacter(char);
   }
 
   addLocation(locationName) {
     let loc = new Location(locationName);
-    this.model.addCharacter(loc);
+    model.addCharacter(loc);
   }
 
   addScene (params) {
     let characters = [];
 
     for (let charName in params.characters) {
-      let char = this.model.getCharacterByName(charName);
+      let char = model.getCharacterByName(charName);
       if(char) {
         characters.push(char);
       }
     }
 
-    let loc = this.model.getLocationByName(params.location);
+    let loc = model.getLocationByName(params.location);
+    let type = model.getSceneTypeByName(params.type)
 
-    switch(params.type) {
-      case TypeNames.INCITING_INCIDENT: {
-        this.model.addScene(new IncitingIncident(params, characters,  loc));
-        break;
-      }
-      case TypeNames.PLOT_POINT_I: {
-        this.model.addScene(new PlotPoint1(params, characters, loc));
-        break;
-      }
-      case TypeNames.CENTRAL_POINT: {
-        this.model.addScene(new CentralPoint(params, characters, loc));
-        break;
-      }
-      case TypeNames.PLOT_POINT_II: {
-        this.model.addScene(new PlotPoint2(params, characters, loc));
-        break;
-      }
-      case TypeNames.CLIMAX: {
-        this.model.addScene(new Climax(params, characters, loc));
-        break;
-      }
-      default: {
-        this.model.addScene(new Scene(params, characters, loc));
-        break;
-      }
-    }
+    model.addScene(new Scene(params, characters, loc, type));
   }
 }
+
+function createSceneAt(x, y) {
+  let vo = model.getValuesObject();
+  vo[view.scope] = mouseY / view.h;
+  control.addScene({
+    title: "",
+    description: "...",
+    location: "",
+    t: mouseX / view.w,
+    values: vo,
+    conflict: "",
+    characters: []
+  })
+}
+
+

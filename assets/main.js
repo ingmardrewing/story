@@ -1,13 +1,12 @@
 let model, view, control;
 
-let w = 1000;
-let h = 500;
-
 function setup() {
-  createCanvas(w, h);
+
   model = new Model();
-  control = new Control(model, view);
-  view = new View(model, control);
+  control = new Control();
+  view = new View();
+
+  createCanvas(view.w, view.h);
 
   control.init({
     title: "Red Riding Hood",
@@ -23,28 +22,29 @@ function setup() {
     characters:[
       {
         name: "Red Riding Hood",
-        archetype: "protagonist",
+        archetype: "PROTAGONIST",
       },
       {
         name: "Wolf",
-        archetype: "antagonist"
+        archetype: "ANTAGONIST"
       },
       {
         name: "Granny",
-        archetype: "reason"
+        archetype: "REASON"
       },
       {
         name: "Hunter",
-        archetype: "guardian"
+        archetype: "GUARDIAN"
       }
     ],
     scenes: [
       {
-        type: "Inciting Incident",
+        type: "INCITING_INCIDENT",
         title: "Start delivery",
         description: "...",
         t: 0.2,
         location: "Forest",
+        throughline: "MAIN_CHARACTER",
         values: {
           "Suspense": 0.4,
           "Life": 0.9
@@ -53,11 +53,12 @@ function setup() {
         characters: ["Red Riding Hood"]
       },
       {
-        type: "Regular Scene",
+        type: "REGULAR_SCENE",
         title: "A short intermission",
         description: "...",
         t: 0.5,
         location: "Ad Space",
+        throughline: "OBJECTIVE",
         values: {
           "Suspense": 0.0,
           "Life": 0.1
@@ -66,11 +67,26 @@ function setup() {
         characters: []
       },
       {
-        type: "Central Point",
+        type: "REGULAR_SCENE",
+        title: "Monologue of the wolf",
+        description: "...",
+        t: 0.5,
+        location: "Forest",
+        throughline: "INFLUENCE_CHARACTER",
+        values: {
+          "Suspense": 0.0,
+          "Life": 0.1
+        },
+        conflict: "",
+        characters: ["Wolf"]
+      },
+      {
+        type: "CENTRAL_POINT",
         title: "Wolf attacks",
         description: "...",
         t: 0.5,
         location: "Forest",
+        throughline: "RELATIONSHIP",
         values: {
           "Suspense": 0.5,
           "Life": 0.1
@@ -79,11 +95,12 @@ function setup() {
         characters: ["Red Riding Hood", "Wolf"]
       },
       {
-        type: "Climax",
+        type: "CLIMAX",
         title: "Hunter guts wolf",
         description: "...",
         t: 0.8,
         location: "Granny's Home",
+        throughline: "RELATIONSHIP",
         values: {
           "Suspense": 0.1,
           "Life": 1.0
@@ -97,22 +114,20 @@ function setup() {
 
 function draw() {
   clear();
-  let scenes = model.getScenes();
-  for (let s of scenes) {
-    fill( s.dragged ? '#FF0000' : '#FFFFFF' );
-    let sx = Math.round(s.t * w);
-    let sy = Math.round(s.values[view.scope]* h);
-    ellipse(sx, sy, view.sceneRadius, view.sceneRadius);
+  for (let s of view.sceneSprites) {
+    fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
+    if(!s.dragged) {
+      s.approxPosition();
+    }
+    ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
   }
 }
 
 function mousePressed(e) {
   e.preventDefault();
-  let scenes = model.getScenes();
   let noHit = true;
-  for (let s of scenes) {
-    let y = s.values[view.scope] ? s.values[view.scope] * h : 0;
-    let distance = dist(mouseX, mouseY, s.t * w, y );
+  for (let s of view.sceneSprites) {
+    let distance = dist(mouseX, mouseY, s.x, s.y );
     if (distance < view.sceneRadius) {
       s.dragged = true;
       noHit = false;
@@ -123,43 +138,37 @@ function mousePressed(e) {
   }
   if (noHit) {
     createSceneAt(mouseX, mouseY);
-  }
-  return false;
-}
-
-function createSceneAt(x, y) {
-  let vo = model.getValuesObject();
-  vo[view.scope] = mouseY / h;
-  control.addScene({
-    title: "",
-    description: "...",
-    t: mouseX / w,
-    values: vo,
-    conflict: "",
-    characters: []
-  })
-}
-
-function mouseReleased(e) {
-  e.preventDefault();
-  let scenes = model.getScenes();
-  for (let s of scenes) {
-    s.dragged = false;
+    view.updateSceneSprites();
   }
   return false;
 }
 
 function mouseDragged(e) {
   e.preventDefault();
-  let scenes = model.getScenes();
-  for (let s of scenes) {
+  for (let s of view.sceneSprites) {
     if (s.dragged) {
-      let t = mouseX / w ;
-      s.t = t < s.lowerLimit ? s.lowerLimit :
-            t > s.upperLimit ? s.upperLimit : t;
-      s.values[view.scope] = mouseY / h;
+      s.setPosition(mouseX, mouseY);
       return false;
     }
   }
   return false;
+}
+
+function mouseReleased(e) {
+  e.preventDefault();
+  for (let s of view.sceneSprites) {
+    if (s.dragged){
+      s.dragged = false;
+      s.writeToModel();
+      s.readDestinationFromModel();
+      s.syncPosition();
+      view.update();
+    }
+  }
+  return false;
+}
+
+function selectValue(val){
+  view.scope = val;
+  view.update();
 }

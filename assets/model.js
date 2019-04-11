@@ -1,3 +1,36 @@
+const SceneTypeNames = {
+  INCITING_INCIDENT: Symbol("Inciting Incident"),
+  PLOT_POINT_I: Symbol("Plot Point 1"),
+  CENTRAL_POINT: Symbol("Central Point"),
+  PLOT_POINT_II: Symbol("Plot Point 2"),
+  CLIMAX: Symbol("Climax"),
+  REGULAR_SCENE: Symbol("Regular Scene")
+};
+Object.freeze(SceneTypeNames);
+
+const characterArchetypes = {
+  COMPLEX: Symbol("complex"),
+
+  PROTAGONIST: Symbol("protagonist"),
+  SIDEKICK: Symbol("sidekick"),
+  GUARDIAN: Symbol("guardian"),
+  REASON: Symbol("reason"),
+
+  ANTAGONIST: Symbol("antagonist"),
+  SCEPTIC: Symbol("sceptic"),
+  CONTAGONIST: Symbol("contagonist"),
+  EMOTIONAL: Symbol("emotional")
+}
+Object.freeze(characterArchetypes);
+
+const throughlines = {
+  OBJECTIVE: Symbol("objective"),
+  RELATIONSHIP: Symbol("relationship"),
+  MAIN_CHARACTER: Symbol("main charachter"),
+  INFLUENCE_CHARACTER: Symbol("influence character")
+};
+Object.freeze(throughlines);
+
 class Model {
   story;
 
@@ -38,12 +71,45 @@ class Model {
   }
 
   addScene(scene) {
-    console.log(scene.type);
     this.story.addScene(scene);
   }
 
   getScenes() {
     return this.story.getScenes();
+  }
+
+  getSceneTypeByName(sceneTypeName) {
+    for( let typeName in SceneTypeNames) {
+      if (typeName === sceneTypeName) {
+        return SceneTypeNames[sceneTypeName];
+      }
+    }
+    return SceneTypeNames.REGULAR_SCENE;
+  }
+}
+
+// TODO: Use for characters, locations, throughlines, story values
+class Spreader {
+  table = {}
+
+  constructor(keyOnTargetObjects) {
+    this.keyOnTargetObjects = keyOnTargetObjects;
+  }
+
+  applyOnObjects(objects) {
+    for (let o of objects) {
+      for (let v in this.table) {
+        o[v] = this.table[v];
+      }
+    }
+  }
+
+  addKeyValue(key, value) {
+    table[key] = value;
+  }
+
+  freeze() {
+    Object.freeze(this.table);
   }
 }
 
@@ -63,14 +129,7 @@ class Story {
   values;
   locations;
 
-  throughlines = {
-    OBJECTIVE: Symbol("objective"),
-    RELATIONSHIP: Symbol("relationship"),
-    MAIN_CHARACTER: Symbol("main charachter"),
-    INFLUENCE_CHARACTER: Symbol("influence character")
-  };
-
-  constructor(){
+    constructor(){
     this.locations = [];
     this.scenes = [];
     this.values = [];
@@ -116,10 +175,6 @@ class Story {
       }
     }
   }
-
-  limitKeyScenes() {
-
-  }
 }
 
 class StoryValue {
@@ -128,34 +183,20 @@ class StoryValue {
     this.name = name;
   }
 }
-
-const TypeNames = {
-  INCITING_INCIDENT: "Inciting Incident",
-  PLOT_POINT_I: "Plot Point 1",
-  CENTRAL_POINT: "Central Point",
-  PLOT_POINT_II: "Plot Point 2",
-  CLIMAX: "Climax",
-  REGULAR_SCENE: "Regular Scene"
-};
-Object.freeze(TypeNames);
-
 class Scene {
-  lowerLimit = 0;
-  upperLimit = 1;
-
   t;
   values;
-  dragged = false;
 
+  active = false;
   title;
   description;
   location;
   characters;
   conflict;
   throughline;
-  type = TypeNames.REGULAR_SCENE;
+  type = SceneTypeNames.REGULAR_SCENE;
 
-  constructor(params, characters, location) {
+  constructor(params, characters, location, type, throughline) {
     this.title = params.title;
     this.description= params.description;
     this.t = params.t;
@@ -163,57 +204,13 @@ class Scene {
     this.characters = characters;
     this.throughline = params.throughline;
     this.values = params.values;
+    this.type = type;
   }
 
   addCharacter(char) {
     this.characters.push(char);
   }
 }
-
-class IncitingIncident extends Scene { 
-  type = TypeNames.INCITING_INCIDENT;
-  lowerLimit = 0;
-  upperLimit = 0.25;
-}
-
-class PlotPoint1 extends Scene { 
-  type = TypeNames.PLOT_POINT_I;
-  lowerLimit = 0.25;
-  upperLimit = 0.25;
-}
-
-class CentralPoint extends Scene { 
-  type = TypeNames.CENTRAL_POINT;
-  lowerLimit = 0.5;
-  upperLimit = 0.5;
-}
-
-class PlotPoint2 extends Scene { 
-  type = TypeNames.PLOT_POINT_II;
-  lowerLimit = 0.75;
-  upperLimit = 0.75;
-}
-
-class Climax extends Scene { 
-  type = TypeNames.CLIMAX;
-  lowerLimit = 0.75;
-  upperLimit = 1;
-}
-
-const characterArchetypes = {
-      COMPLEX: Symbol("complex"),
-
-      PROTAGONIST: Symbol("protagonist"),
-      SIDEKICK: Symbol("sidekick"),
-      GUARDIAN: Symbol("guardian"),
-      REASON: Symbol("reason"),
-
-      ANTAGONIST: Symbol("antagonist"),
-      SCEPTIC: Symbol("sceptic"),
-      CONTAGONIST: Symbol("contagonist"),
-      EMOTIONAL: Symbol("emontional")
-}
-Object.freeze(characterArchetypes);
 
 class Character {
   archetype;
@@ -225,13 +222,13 @@ class Character {
   biogaphy;
 
   contructor (params) {
-    ch.name = params.name;
-    ch.purpose = params.purpose;
-    ch.motivation = params.motivation;
-    ch.methodology= params.methodology;
-    ch.evaluation = params.evaluation;
-    ch.biography = params.biography;
-    ch.archetype = ch.selectArchetypeByString(params.achetype)
+    this.name = params.name;
+    this.purpose = params.purpose;
+    this.motivation = params.motivation;
+    this.methodology= params.methodology;
+    this.evaluation = params.evaluation;
+    this.biography = params.biography;
+    this.archetype = this.selectArchetypeByString(params.achetype)
   }
 
   static archetypeByString(archName) {
