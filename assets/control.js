@@ -1,6 +1,10 @@
 class Control {
 
+  commandQueue;
+
   init(s) {
+    this.commandQueue = new CommandQueue();
+
     model.story = new Story();
     model.story.title = s.title;
     model.story.description = s.description;
@@ -22,59 +26,184 @@ class Control {
   }
 
   addValue(valueName) {
-    let value = new StoryValue(valueName);
-    model.addStoryValue(value);
+    this.commandQueue.addCommand(new AddValueCommand(valueName));
   }
 
   addCharacter(params) {
-    let char = new Character(params);
-    model.addCharacter(char);
+    this.commandQueue.addCommand(new AddCharacterCommand(params));
   }
 
   addLocation(locationName) {
-    let loc = new Location(locationName);
-    model.addCharacter(loc);
+    this.commandQueue.addCommand(new AddLocationCommand(params));
   }
 
   addScene (params) {
-    let characters = [];
+    this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));
+  }
 
-    for (let charName in params.characters) {
-      let char = model.getCharacterByName(charName);
+  moveScene(scene, x, y) {
+    this.commandQueue.addCommand(new MoveSceneCommand({
+      scene: scene,
+      oldT: scene.t,
+      oldY: scene.values[view.scope],
+      newT: x / view.w,
+      newY: y / view.h
+    }));
+  }
+
+  undo() {
+    this.commandQueue.undo();
+    view.update();
+  }
+
+  redo() {
+    this.commandQueue.redo();
+    view.updateSceneSprites();
+    view.update();
+  }
+}
+
+class CommandQueue {
+  history = [];
+  queue = [];
+
+  addCommand(command) {
+    this.queue = [];
+    command.do();
+    this.history.push(command);
+    view.update()
+  }
+
+  redo() {
+    let cmd = this.queue.pop();
+    if(cmd){
+      cmd.do();
+      this.history.push(cmd);
+    }
+  }
+
+  undo() {
+    console.log("undo");
+    let cmd = this.history.pop();
+    if(cmd){
+      console.log("actually undoing ...", cmd.payload);
+      cmd.undo();
+      this.queue.push(cmd);
+    }
+  }
+}
+
+class Command {
+  payload;
+
+  constructor(payload){
+    this.payload = payload;
+  }
+}
+
+class AddCharacterCommand extends Command {
+  character;
+
+  do(){
+    this.char = new Character(this.payload);
+    model.story.addCharacter(char);
+  }
+
+  undo() {
+    removeItemFromArray(model.story.characters, this.char);
+  }
+}
+
+class AddValueCommand extends Command {
+  value;
+
+  do() {
+    this.value = new StoryValue(this.payload);
+    model.story.addStoryValue(this.value);
+    for(let s of model.story.getScenes()) {
+      s.addValue(this.value.name, 0.5);
+    }
+  }
+
+  undo(){
+    removeItemFromArray(model.story.values, this.value);
+    for(let s of model.story.getScenes()) {
+      removeItemFromArray(s.values, this.value);
+    }
+  }
+}
+
+class AddLocationCommand extends Command {
+  loc;
+  do() {
+    this.loc = new Location(payload);
+    model.story.addLocation(this.loc);
+  }
+
+  undo() {
+    removeItemFromArray(model.story.locations, this.location);
+  }
+}
+
+class AddSceneFromJSONCommand extends Command {
+  scene;
+  do() {
+    let characters = [];
+    for (let charName in this.payload.characters) {
+      let char = model.story.getCharacterByName(charName);
       if(char) {
         characters.push(char);
       }
     }
-
-    let loc = model.getLocationByName(params.location);
-    let type = model.getSceneTypeByName(params.type)
-
-    model.addScene(new Scene(params, characters, loc, type));
+    let loc = model.story.getLocationByName(this.payload.location);
+    let type = model.getSceneTypeByName(this.payload.type)
+    this.scene = new Scene(this.payload, characters, loc, type);
+    model.story.addScene(this.scene);
   }
 
-  addUi(id) {
-    for( let v in model.getValuesObject()) {
-      addLink(v, "selectValue", id);
-    }
+  undo() {
+    removeItemFromArray(model.story.scenes, this.scene);
+    let i = view.sceneSprites.indexOf(this.scene.sprite);
+    view.sceneSprites.splice(i, 1);
   }
 }
 
-function addLink(arg, fn, id) {
-  var link = document.createElement("a");
-  link.setAttribute("href", "javascript:"+fn+"('"+arg+"');")
-  link.appendChild(document.createTextNode(arg));
-  var br = document.createElement("br")
-  document.getElementById(id).appendChild(link);
-  document.getElementById(id).appendChild(br);
+class MoveSceneCommand extends Command {
+  do() {
+      this.payload.scene.t = this.payload.newT;
+      this.payload.scene.values[view.scope] = this.payload.newY;
+
+      this.payload.scene.sprite.readDestinationFromModel();
+      this.payload.scene.sprite.syncPosition();
+      model.sort();
+  }
+
+  undo() {
+      this.payload.scene.t = this.payload.oldT;
+      this.payload.scene.values[view.scope] = this.payload.oldY;
+
+      this.payload.scene.sprite.readDestinationFromModel();
+      model.sort();
+  }
 }
+
+
+function removeItemFromArray(arr, item) {
+  if(arr.length > 0 && arr.includes(item)){
+    let i = arr.indexOf(this.scene);
+    arr.splice(i, 1);
+  }
+}
+
+// addcharacter command, add scene command ... etc.
 
 function createSceneAt(x, y) {
-  console.log(x, y);
-  if (x < 0 || y < 0) {
+  if (x < 0 || y < 0 || x > view.w || y > view.h) {
     return;
   }
   let vo = model.getValuesObject();
   vo[view.scope] = mouseY / view.h;
+  
   control.addScene({
     title: "",
     description: "...",

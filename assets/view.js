@@ -5,13 +5,28 @@ const color = {
 };
 Object.freeze(color);
 
+const thres = {
+  START: 0,
+  PP1: 0.25,
+  CP: 0.5,
+  PP2: 0.75,
+  END: 1
+}
+Object.freeze(thres);
+
 class  View {
   scope = "Suspense";
-  sceneRadius = 20;
-  sceneSprites;
+  sceneRadius = 15;
+  sceneSprites = [];
+  $guiContainer;
 
-  w = 1000;
-  h = 500;
+  w = 1400;
+  h = 300;
+
+  constructor(){
+    this.$guiContainer = $(`<div class="guiContaienr">`);
+    $("body").append(this.$guiContainer);
+  }
 
   setScope(scope) {
     this.scope = scope;
@@ -22,6 +37,7 @@ class  View {
     for(let s of model.getScenes()) {
       let restriction = getRestriction(s.type);
       let sprite = new SceneSprite(s, restriction);
+      s.setSprite(sprite);
       sprite.readDestinationFromModel();
       sprite.syncPosition();
       this.sceneSprites.push(sprite);
@@ -29,11 +45,23 @@ class  View {
   }
 
   update() {
-    for ( let s of this.sceneSprites) {
-      s.readDestinationFromModel();
+    for ( let ss of this.sceneSprites) {
+      ss.readDestinationFromModel();
+    }
+    this.$guiContainer.empty();
+    this.$guiContainer.append(`<a href="javascript:control.undo();">undo</a>`);
+    this.$guiContainer.append(` <a href="javascript:control.redo();">redo</a>`);
+    this.$guiContainer.append(`<br><br>`);
+    for( let v in model.getValuesObject()) {
+      view.addLink(v, "selectValue");
     }
   }
+
+  addLink(arg, fn) {
+    this.$guiContainer.append(`<a href="javascript:${fn}('${arg}');">${arg}</a><br>`);
+  }
 }
+
 
 class SceneSprite {
   x = 0;
@@ -112,31 +140,31 @@ function getRestriction(sceneType) {
 }
 
 class RegularRestriction {
-  lowerLimit = 0;
-  upperLimit = 1;
+  lowerLimit = thres.START;
+  upperLimit = thres.END;
 }
 
 class IncitingIncidentRestriction {
-  lowerLimit = 0;
-  upperLimit = 0.25;
+  lowerLimit = thres.START;
+  upperLimit = thres.PP1;
 }
 
 class PlotPoint1Restriction {
-  lowerLimit = 0.25;
-  upperLimit = 0.25;
+  lowerLimit = thres.PP1;
+  upperLimit = thres.PP1;
 }
 
 class CentralPointRestriction {
-  lowerLimit = 0.5;
-  upperLimit = 0.5;
+  lowerLimit = thres.CP;
+  upperLimit = thres.CP;
 }
 
 class PlotPoint2Restriction {
-  lowerLimit = 0.75;
-  upperLimit = 0.75;
+  lowerLimit = thres.PP2;
+  upperLimit = thres.PP2;
 }
 
 class ClimaxRestriction {
-  lowerLimit = 0.75;
-  upperLimit = 1;
+  lowerLimit = thres.PP2;
+  upperLimit = thres.END;
 }

@@ -38,40 +38,12 @@ class Model {
     this.story = new Story();
   }
 
-  addCharacter(char) {
-    this.story.addCharacter(char);
-  }
-
-  getCharacterByName(charName) {
-    return this.story.getCharacterByName(charName);
-  }
-
-  addStoryValue(value) {
-    this.story.addStoryValue(value);
-  }
-
-  getStoryValueByName(valName) {
-    return this.story.getStoryValueByName(valName);
-  }
-
   getValuesObject() {
     let vo = {};
     for(let v of this.story.values) {
-      vo[v.name] = 0;
+      vo[v.name] = 0.5;
     }
     return vo;
-  }
-
-  addLocation(location) {
-    this.story.addLocation(location)
-  }
-
-  getLocationByName(locName) {
-    return this.story.getLocationByName(locName);
-  }
-
-  addScene(scene) {
-    this.story.addScene(scene);
   }
 
   getScenes() {
@@ -177,6 +149,8 @@ class Scene {
   throughline;
   type = SceneTypeNames.REGULAR_SCENE;
 
+  sprite;
+
   constructor(params, characters, location, type, throughline) {
     this.title = params.title;
     this.description= params.description;
@@ -190,6 +164,10 @@ class Scene {
 
   addCharacter(char) {
     this.characters.push(char);
+  }
+
+  setSprite(sprite) {
+    this.sprite = sprite;
   }
 }
 

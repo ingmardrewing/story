@@ -1,5 +1,8 @@
-let model, view, control;
+let model, view, control, openSans;
 
+function preload() {
+  openSans = loadFont('assets/open-sans-v15-latin-ext_latin-300.ttf');
+}
 function setup() {
 
   model = new Model();
@@ -46,8 +49,8 @@ function setup() {
         location: "Forest",
         throughline: "MAIN_CHARACTER",
         values: {
-          "Suspense": 0.5,
-          "Life": 0.5
+          "Suspense": 0.3,
+          "Life": 0.6
         },
         conflict: "RRH begins her travel in order to deliver the food",
         characters: ["Red Riding Hood"]
@@ -60,8 +63,8 @@ function setup() {
         location: "Ad Space",
         throughline: "OBJECTIVE",
         values: {
-          "Suspense": 0.5,
-          "Life": 0.5
+          "Suspense": 0.7,
+          "Life": 0.4
         },
         conflict: "",
         characters: []
@@ -74,8 +77,8 @@ function setup() {
         location: "Forest",
         throughline: "INFLUENCE_CHARACTER",
         values: {
-          "Suspense": 0.5,
-          "Life": 0.5
+          "Suspense": 0.4,
+          "Life": 0.7
         },
         conflict: "",
         characters: ["Wolf"]
@@ -88,8 +91,8 @@ function setup() {
         location: "Forest",
         throughline: "RELATIONSHIP",
         values: {
-          "Suspense": 0.5,
-          "Life": 0.5
+          "Suspense": 0.7,
+          "Life": 0.3
         },
         conflict: "RRH wants to deliver food; Wolf eats her first.",
         characters: ["Red Riding Hood", "Wolf"]
@@ -102,19 +105,34 @@ function setup() {
         location: "Granny's Home",
         throughline: "RELATIONSHIP",
         values: {
-          "Suspense": 0.5,
-          "Life": 0.5
+          "Suspense": 0.4,
+          "Life": 0.7
         },
         conflict: "Wolf wants to stay alive; Hunter cuts wolf open",
         characters: ["Hunter", "Wolf", "Granny", "Red Riding Hood"]
       }
     ],
   });
-  control.addUi("proxyui");
 }
 
 function draw() {
   clear();
+  // create grid
+  let pp1 = thres.PP1 * view.w;
+  let pp2 = thres.PP2 * view.w;
+  let vmid = 0.5 * view.h
+  line(pp1, 0, pp1, view.h);
+  line(pp2, 0, pp2, view.h);
+  line(0, vmid, view.w, vmid);
+
+  fill(153);
+  textFont(openSans);
+  textSize(36);
+  let fontH = view.h -12;
+  text("Setup", 10, fontH);
+  text("Confrontation", pp1 +10, fontH);
+  text("Resolution", pp2 +10, fontH);
+
   let lastX = -1;
   let lastY = -1;
   stroke(102);
@@ -170,12 +188,8 @@ function mouseReleased(e) {
   e.preventDefault();
   for (let s of view.sceneSprites) {
     if (s.dragged){
+      control.moveScene(s.scene, s.x, s.y);
       s.dragged = false;
-      s.writeToModel();
-      s.readDestinationFromModel();
-      s.syncPosition();
-      model.sort();
-      view.update();
     }
   }
   return false;
