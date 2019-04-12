@@ -195,6 +195,15 @@ function mouseReleased(e) {
   return false;
 }
 
+hotkeys("ctr+z,cmd+z", function keyPressed(e, h) {
+  control.undo();
+});
+
+hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
+  control.redo();
+});
+
+
 function selectValue(val){
   view.scope = val;
   view.update();

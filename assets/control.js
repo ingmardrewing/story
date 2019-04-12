@@ -53,6 +53,7 @@ class Control {
 
   undo() {
     this.commandQueue.undo();
+    view.updateSceneSprites();
     view.update();
   }
 
@@ -69,24 +70,28 @@ class CommandQueue {
 
   addCommand(command) {
     this.queue = [];
-    command.do();
-    this.history.push(command);
+    this.do(command);
+    view.updateSceneSprites();
     view.update()
   }
 
+  do(cmd) {
+    cmd.do();
+    this.history.push(cmd);
+  }
+
   redo() {
-    let cmd = this.queue.pop();
-    if(cmd){
-      cmd.do();
-      this.history.push(cmd);
+    if (this.queue.length > 0){
+      let cmd = this.queue.pop();
+      console.log("redo:", cmd.constructor.name, cmd.payload);
+      this.do(cmd);
     }
   }
 
   undo() {
-    console.log("undo");
-    let cmd = this.history.pop();
-    if(cmd){
-      console.log("actually undoing ...", cmd.payload);
+    if (this.history.length > 0){
+      let cmd = this.history.pop();
+      console.log("undo:", cmd.constructor.name, cmd.payload);
       cmd.undo();
       this.queue.push(cmd);
     }
@@ -175,7 +180,6 @@ class MoveSceneCommand extends Command {
 
       this.payload.scene.sprite.readDestinationFromModel();
       this.payload.scene.sprite.syncPosition();
-      model.sort();
   }
 
   undo() {
@@ -183,7 +187,7 @@ class MoveSceneCommand extends Command {
       this.payload.scene.values[view.scope] = this.payload.oldY;
 
       this.payload.scene.sprite.readDestinationFromModel();
-      model.sort();
+      this.payload.scene.sprite.syncPosition();
   }
 }
 
