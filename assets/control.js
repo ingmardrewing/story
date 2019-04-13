@@ -22,6 +22,7 @@ class Control {
       c.addScene(params);
     });
 
+    model.story.scenes[0].active = true;
     view.updateSceneSprites();
     view.setupGui();
     view.updateGui();

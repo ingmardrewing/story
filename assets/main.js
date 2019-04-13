@@ -3,6 +3,7 @@ let model, view, control, openSans;
 function preload() {
   openSans = loadFont('assets/open-sans-v15-latin-ext_latin-300.ttf');
 }
+
 function setup() {
 
   model = new Model();
@@ -165,8 +166,11 @@ function draw() {
 }
 
 function mousePressed(e) {
-  if( $('.overlay').length > 0 ) { return false; }
-  e.preventDefault();
+  if( $('.overlay').length > 0 ) {
+    console.log("overlay is active");
+    return ;
+  }
+  console.log("ran through");
   let noHit = true;
   for (let s of view.sceneSprites) {
     let distance = dist(mouseX, mouseY, s.x, s.y );
@@ -180,35 +184,30 @@ function mousePressed(e) {
       s.dragged = false;
     }
   }
+
   if (noHit) {
     createSceneAt(mouseX, mouseY);
     view.updateSceneSprites();
   }
-  return false;
 }
 
 function mouseDragged(e) {
   if( $('.overlay').length > 0 ) { return false; }
-  e.preventDefault();
   for (let s of view.sceneSprites) {
     if (s.dragged) {
       s.setPosition(mouseX, mouseY);
-      return false;
     }
   }
-  return false;
 }
 
 function mouseReleased(e) {
   if( $('.overlay').length > 0 ) { return false; }
-  e.preventDefault();
   for (let s of view.sceneSprites) {
     if (s.dragged){
       control.moveScene(s.scene, s.x, s.y);
       s.dragged = false;
     }
   }
-  return false;
 }
 
 hotkeys("ctr+z,cmd+z", function keyPressed(e, h) {
@@ -218,5 +217,4 @@ hotkeys("ctr+z,cmd+z", function keyPressed(e, h) {
 hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
   control.redo();
 });
-
 
