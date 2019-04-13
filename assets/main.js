@@ -117,7 +117,10 @@ function setup() {
 
 function draw() {
   clear();
+  stroke(102);
+
   // create grid
+  strokeWeight(0.5);
   let pp1 = thres.PP1 * view.w;
   let pp2 = thres.PP2 * view.w;
   let vmid = 0.5 * view.h
@@ -135,7 +138,7 @@ function draw() {
 
   let lastX = -1;
   let lastY = -1;
-  stroke(102);
+  strokeWeight(1);
   view.sceneSprites.sort(function(a, b){return a.x-b.x;});
   for (let s of view.sceneSprites) {
     if(!s.dragged) {
@@ -147,7 +150,9 @@ function draw() {
     lastX = s.x;
     lastY = s.y;
   }
+
   for (let s of view.sceneSprites) {
+    strokeWeight( s.scene.active ? 2 : 1);
     fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
   }
@@ -160,9 +165,11 @@ function mousePressed(e) {
     let distance = dist(mouseX, mouseY, s.x, s.y );
     if (distance < view.sceneRadius) {
       s.dragged = true;
+      s.scene.activate();
       noHit = false;
     }
     else {
+      s.scene.deactivate();
       s.dragged = false;
     }
   }
@@ -204,7 +211,3 @@ hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
 });
 
 
-function selectValue(val){
-  view.scope = val;
-  view.update();
-}

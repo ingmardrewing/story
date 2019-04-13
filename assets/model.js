@@ -98,7 +98,7 @@ class Story {
   }
 
   addLocation(location) {
-    this.lcoation.push(location);
+    this.locations.push(location);
   }
 
   getLocationByName(locName){
@@ -136,6 +136,7 @@ class StoryValue {
     this.name = name;
   }
 }
+
 class Scene {
   t;
   values;
@@ -169,9 +170,17 @@ class Scene {
   setSprite(sprite) {
     this.sprite = sprite;
   }
+
+  activate() {
+    this.active = true;
+  }
+
+  deactivate() {
+    this.active = false;
+  }
 }
 
-class Character {
+class StoryCharacter {
   archetype;
   name;
   purpose;
@@ -180,22 +189,14 @@ class Character {
   motivation;
   biogaphy;
 
-  contructor (params) {
+  constructor (params, archetype) {
     this.name = params.name;
     this.purpose = params.purpose;
     this.motivation = params.motivation;
     this.methodology= params.methodology;
     this.evaluation = params.evaluation;
     this.biography = params.biography;
-    this.archetype = this.selectArchetypeByString(params.achetype)
-  }
-
-  static archetypeByString(archName) {
-    for (let at in characterArchetypes) {
-      if(at === archName) {
-        return at;
-      }
-    }
+    this.archetype = archetype;
   }
 }
 

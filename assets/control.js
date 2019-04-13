@@ -23,6 +23,13 @@ class Control {
     });
 
     view.updateSceneSprites();
+    view.setupGui();
+    view.updateGui();
+  }
+
+  selectValue(val){
+    view.scope = val;
+    view.update();
   }
 
   addValue(valueName) {
@@ -83,7 +90,7 @@ class CommandQueue {
   redo() {
     if (this.queue.length > 0){
       let cmd = this.queue.pop();
-      console.log("redo:", cmd.constructor.name, cmd.payload);
+      // console.log("redo:", cmd.constructor.name, cmd.payload);
       this.do(cmd);
     }
   }
@@ -91,7 +98,7 @@ class CommandQueue {
   undo() {
     if (this.history.length > 0){
       let cmd = this.history.pop();
-      console.log("undo:", cmd.constructor.name, cmd.payload);
+      // console.log("undo:", cmd.constructor.name, cmd.payload);
       cmd.undo();
       this.queue.push(cmd);
     }
@@ -107,11 +114,18 @@ class Command {
 }
 
 class AddCharacterCommand extends Command {
-  character;
+  char;
 
   do(){
-    this.char = new Character(this.payload);
-    model.story.addCharacter(char);
+    let newArchetype ;
+    for (let at in characterArchetypes) {
+      if(at === this.payload.archetype) {
+        newArchetype = at;
+        break;
+      }
+    }
+    this.char = new StoryCharacter(this.payload, newArchetype);
+    model.story.addCharacter(this.char);
   }
 
   undo() {

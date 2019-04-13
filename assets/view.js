@@ -1,6 +1,6 @@
 const color = {
   SCENE_FILL: '#FFFFFF',
-  SCENE_FILL_ACTIVE: '#FF0000',
+  SCENE_FILL_ACTIVE: '#FFAA00',
   SCENE_BORDER: '#000000'
 };
 Object.freeze(color);
@@ -19,14 +19,12 @@ class  View {
   sceneRadius = 15;
   sceneSprites = [];
   $guiContainer;
+  $guiCol1;
+  $guiCol2;
+  $guiCol3;
 
-  w = 1400;
+  w = 1200;
   h = 300;
-
-  constructor(){
-    this.$guiContainer = $(`<div class="guiContaienr">`);
-    $("body").append(this.$guiContainer);
-  }
 
   setScope(scope) {
     this.scope = scope;
@@ -48,17 +46,56 @@ class  View {
     for ( let ss of this.sceneSprites) {
       ss.readDestinationFromModel();
     }
-    this.$guiContainer.empty();
-    this.$guiContainer.append(`<a href="javascript:control.undo();">undo</a>`);
-    this.$guiContainer.append(` <a href="javascript:control.redo();">redo</a>`);
-    this.$guiContainer.append(`<br><br>`);
-    for( let v in model.getValuesObject()) {
-      view.addLink(v, "selectValue");
+    this.updateGui();
+  }
+
+  updateGui() {
+    if(this.$guiContainer) {
+      this.$guiContainer.children().empty();
+      this.$guiCol1.append(`<h2 class="storyItem">Story Values</h2>`);
+      for( let v in model.getValuesObject()) {
+        this.$guiCol1.append(
+          `<div class="storyItem">
+            <a class="choose" href="javascript:control.selectValue('${v}');">${v}</a>
+            <a class="edit" href="javascript:control.editValue('${v}');">edit</a>
+            <a class="delete" href="javascript:control.deleteValue('${v}');">delete</a>
+          </div>`);
+      }
+      this.$guiCol1.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
+
+      this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
+      for( let c of model.story.characters) {
+        this.$guiCol2.append(
+                  `<div class="storyItem">
+                    <a class="choose" href="javascript:control.selectValue('${c.name}');">${c.name}</a>
+                    <a class="edit" href="javascript:control.editValue('${c.name}');">edit</a>
+                    <a class="delete" href="javascript:control.deleteValue('${c.name}');">delete</a>
+        </div>`);
+      }
+      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
+
+      this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
+      for( let l of model.story.locations) {
+        this.$guiCol3.append(
+                          `<div class="storyItem">
+                            <a class="choose" href="javascript:control.selectValue('${l.name}');">${l.name}</a>
+                            <a class="edit" href="javascript:control.editValue('${l.name}');">edit</a>
+                            <a class="delete" href="javascript:control.deleteValue('${l.name}');">delete</a>
+        </div>`);
+      }
+      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
 
-  addLink(arg, fn) {
-    this.$guiContainer.append(`<a href="javascript:${fn}('${arg}');">${arg}</a><br>`);
+  setupGui() {
+    this.$guiContainer = $(`<div class="guiContainer">`);
+    this.$guiCol1 = $('<div class="guiCol">');
+    this.$guiCol2 = $('<div class="guiCol">');
+    this.$guiCol3 = $('<div class="guiCol">');
+    this.$guiContainer.append(this.$guiCol1);
+    this.$guiContainer.append(this.$guiCol2);
+    this.$guiContainer.append(this.$guiCol3);
+    $("body").append(this.$guiContainer);
   }
 }
 
