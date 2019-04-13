@@ -48,6 +48,16 @@ class Control {
     this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));
   }
 
+  editScene(scene) {
+    let md = new ModalDialogue(
+      "Edit Scene",
+      $('body'),
+      scene,
+      ["title", "description"]
+    );
+    md.open();
+  }
+
   moveScene(scene, x, y) {
     this.commandQueue.addCommand(new MoveSceneCommand({
       scene: scene,
@@ -55,6 +65,14 @@ class Control {
       oldY: scene.values[view.scope],
       newT: x / view.w,
       newY: y / view.h
+    }));
+  }
+
+  updateModelField(currentModel, modelFieldName, newValue) {
+    this.commandQueue.addCommand(new UpdateModelFieldCommand({
+      model: currentModel,
+      fieldName: modelFieldName,
+      newValue: newValue
     }));
   }
 
@@ -205,6 +223,20 @@ class MoveSceneCommand extends Command {
   }
 }
 
+class UpdateModelFieldCommand extends Command {
+  do(){
+    let pl = this.payload;
+    pl.oldValue = pl.model[pl.fieldName]
+    console.log(pl.oldValue);
+    console.log(pl.newValue);
+    pl.model[pl.fieldName] = pl.newValue;
+  }
+
+  undo() {
+    let pl = this.payload;
+    pl.model[pl.fieldName] = pl.oldValue;
+  }
+}
 
 function removeItemFromArray(arr, item) {
   if(arr.length > 0 && arr.includes(item)){
@@ -221,7 +253,7 @@ function createSceneAt(x, y) {
   }
   let vo = model.getValuesObject();
   vo[view.scope] = mouseY / view.h;
-  
+
   control.addScene({
     title: "",
     description: "...",

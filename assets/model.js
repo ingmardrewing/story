@@ -144,15 +144,17 @@ class Scene {
   active = false;
   title;
   description;
+  image;
   location;
   characters;
   conflict;
   throughline;
+
   type = SceneTypeNames.REGULAR_SCENE;
 
   sprite;
 
-  constructor(params, characters, location, type, throughline) {
+  constructor(params, characters, location, type, throughline, image) {
     this.title = params.title;
     this.description= params.description;
     this.t = params.t;
@@ -161,6 +163,7 @@ class Scene {
     this.throughline = params.throughline;
     this.values = params.values;
     this.type = type;
+    this.image = image;
   }
 
   addCharacter(char) {
@@ -188,6 +191,7 @@ class StoryCharacter {
   methodology;
   motivation;
   biogaphy;
+  image;
 
   constructor (params, archetype) {
     this.name = params.name;
@@ -196,6 +200,7 @@ class StoryCharacter {
     this.methodology= params.methodology;
     this.evaluation = params.evaluation;
     this.biography = params.biography;
+    this.image = params.image;
     this.archetype = archetype;
   }
 }

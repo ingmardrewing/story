@@ -58,69 +58,75 @@ class  View {
     }
   }
 
+  setupGui() {
+    this.$guiContainer = $(`<div class="guiContainer">`);
+    for(let i = 1; i<4; i++) {
+      this['$guiCol'+i] = $('<div class="guiCol">');
+      this.$guiContainer.append(this['$guiCol'+i]);
+    }
+    $("body").append(this.$guiContainer);
+  }
+
   updateGui() {
     if(this.$guiContainer) {
       this.$guiContainer.children().empty();
 
-      let scene = this.getActiveScene()
-      this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
-      if( scene) {
-        this.$guiCol1.append(`<div class="storyItem">
+      let scene = this.getActiveScene();
+      if(scene) {
+        this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
+        let img = "";
+        if(scene.imageUrl) {
+          img = `<img src="${scene.image}">`;
+        }
+        let $storyItem = $(`<div class="storyItem">
+          ${img}
           Title: ${scene.title}<br>
           Description: ${scene.description}
         </div>`);
+        let $link = $(`<a>edit</a>`);
+        $link.click(function(){
+          control.editScene(scene);
+        });
+        $storyItem.append($link);
+        this.$guiCol1.append($storyItem);
       }
 
       this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
       for( let v in model.getValuesObject()) {
-        let active = v === view.scope ? " active" : "";
+        let activeClass = v === view.scope ? " active" : "";
         this.$guiCol2.append(
           `<div class="storyItem">
-            <a class="choose${active}" href="javascript:control.selectValue('${v}');">${v}</a>
+            <a class="choose${activeClass}" href="javascript:control.selectValue('${v}');">${v}</a>
             <a class="edit" href="javascript:control.editValue('${v}');">edit</a>
             <a class="delete" href="javascript:control.deleteValue('${v}');">delete</a>
           </div>`);
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
-      this.$guiCol3.append(`<h2 class="storyItem">Characters</h2>`);
+      this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
-        this.$guiCol3.append(
+        this.$guiCol2.append(
                   `<div class="storyItem">
-                    <a class="choose" href="javascript:control.selectValue('${c.name}');">${c.name}</a>
-                    <a class="edit" href="javascript:control.editValue('${c.name}');">edit</a>
-                    <a class="delete" href="javascript:control.deleteValue('${c.name}');">delete</a>
+                    <a class="choose" href="javascript:control.selectCharacter('${c.name}');">${c.name}</a>
+                    <a class="edit" href="javascript:control.editCharacter('${c.name}');">edit</a>
+                    <a class="delete" href="javascript:control.deleteLocations('${c.name}');">delete</a>
         </div>`);
       }
-      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
+      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
-      this.$guiCol4.append(`<h2 class="storyItem">Locations</h2>`);
+      this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
       for( let l of model.story.locations) {
-        this.$guiCol4.append(
+        this.$guiCol3.append(
                           `<div class="storyItem">
-                            <a class="choose" href="javascript:control.selectValue('${l.name}');">${l.name}</a>
-                            <a class="edit" href="javascript:control.editValue('${l.name}');">edit</a>
-                            <a class="delete" href="javascript:control.deleteValue('${l.name}');">delete</a>
+                            <a class="choose" href="javascript:control.selectLocation('${l.name}');">${l.name}</a>
+                            <a class="edit" href="javascript:control.editLocation('${l.name}');">edit</a>
+                            <a class="delete" href="javascript:control.deleteLocation('${l.name}');">delete</a>
         </div>`);
       }
-      this.$guiCol4.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
+      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
-
-  setupGui() {
-    this.$guiContainer = $(`<div class="guiContainer">`);
-    this.$guiCol1 = $('<div class="guiCol">');
-    this.$guiCol2 = $('<div class="guiCol">');
-    this.$guiCol3 = $('<div class="guiCol">');
-    this.$guiCol4 = $('<div class="guiCol">');
-    this.$guiContainer.append(this.$guiCol1);
-    this.$guiContainer.append(this.$guiCol2);
-    this.$guiContainer.append(this.$guiCol3);
-    this.$guiContainer.append(this.$guiCol4);
-    $("body").append(this.$guiContainer);
-  }
 }
-
 
 class SceneSprite {
   x = 0;
@@ -221,4 +227,123 @@ class PlotPoint2Restriction {
 class ClimaxRestriction {
   lowerLimit = thres.PP2;
   upperLimit = thres.END;
+}
+
+class ModalDialogue {
+  $htmlBody;
+  $overlay;
+  title;
+
+  fields = [];
+  form;
+
+  idcounter = 0;
+
+  constructor(title, $htmlBody, model, fieldNames){
+    this.title = title;
+    this.$htmlBody = $htmlBody;
+    for (let fieldName of fieldNames) {
+      let field = new TextField(
+        "modalField_" + this.idcounter++,
+        fieldName,
+        model[fieldName],
+        model,
+        fieldName);
+      this.fields.push(field);
+    }
+  }
+
+  open() {
+    noLoop();
+    this.assembleForm();
+    this.assembleOverlay();
+    this.displayOverlay();
+  }
+
+  assembleForm() {
+    this.form = `<form class="overlayForm"><div class="formGrid">`;
+    for (let f of this.fields) {
+      this.form += f.assembleHtml();
+    }
+    this.form += `</div></form>`;
+  }
+
+  assembleOverlay() {
+    let self = this;
+    let $container = $(`<div class="formContainer">
+      <h2>${this.title}</h2>
+      ${this.form}
+    </div>`);
+
+    let $close = $(`<a class="close">cancel</a>`);
+    $close.click(function(){
+      self.removeOverlay();
+    });
+    $container.append($close)
+
+    let $save = $(`<a class="save">save</a>`);
+    $save.click(function(){
+      self.save();
+    });
+    $container.append($save)
+
+    this.$overlay = $(`<div class="overlay"></div>`);
+    this.$overlay.append($container);
+  }
+
+  displayOverlay() {
+    this.$htmlBody.append(this.$overlay);
+  }
+
+  removeOverlay() {
+    this.$overlay.remove();
+    loop();
+  }
+
+  save(){
+    for(let f of this.fields) {
+      f.save();
+    }
+    this.removeOverlay();
+  }
+}
+
+class Field {
+  model;
+  modelFieldName;
+  name;
+  value;
+  id;
+
+  constructor(id, name, value, model, modelFieldname) {
+    this.id = id;
+    this.name = name;
+    this.value = value;
+    this.model = model;
+    this.modelFieldName = modelFieldname;
+  }
+
+  assembleHtml() {
+    let input = this.assembleInput();
+    return `
+          <label class="formLabel" for="${this.id}">${this.name}</label>
+          ${input}`;
+  }
+
+  assembleInput(){ return ""; }
+
+  save() {
+    console.log(this, this.id);
+    control.updateModelField(
+      this.model,
+      this.modelFieldName,
+      $('#' + this.id).val()
+    );
+  }
+}
+
+class TextField extends Field {
+  assembleInput(){
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value}" />`;
+  }
 }

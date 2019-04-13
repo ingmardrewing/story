@@ -15,8 +15,8 @@ function setup() {
     title: "Red Riding Hood",
     description: "A food delivery service employee gets eaten by a wolf and reemerges from his belly once the wolf gets killed and cut open.",
     locations:[
-      "Forest",
-      "Granny's Home"
+      {name: "Forest", image: ""},
+      {name:"Granny's Home", image: ""}
     ],
     values:[
       "Suspense",
@@ -165,6 +165,7 @@ function draw() {
 }
 
 function mousePressed(e) {
+  if( $('.overlay').length > 0 ) { return false; }
   e.preventDefault();
   let noHit = true;
   for (let s of view.sceneSprites) {
@@ -187,6 +188,7 @@ function mousePressed(e) {
 }
 
 function mouseDragged(e) {
+  if( $('.overlay').length > 0 ) { return false; }
   e.preventDefault();
   for (let s of view.sceneSprites) {
     if (s.dragged) {
@@ -198,6 +200,7 @@ function mouseDragged(e) {
 }
 
 function mouseReleased(e) {
+  if( $('.overlay').length > 0 ) { return false; }
   e.preventDefault();
   for (let s of view.sceneSprites) {
     if (s.dragged){
