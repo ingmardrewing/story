@@ -219,7 +219,6 @@ class AddSceneFromJSONCommand extends Command {
   scene;
   do() {
     let characters = [];
-    console.log(typeof(characters))
     for (let charName in this.payload.characters) {
       let char = model.story.getCharacterByName(charName);
       if(char) {

@@ -10,6 +10,10 @@ font-weight: 300;
 		url('open-sans-v15-latin-ext_latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
 /*		url('open-sans-v15-latin-ext_latin-300.svg#OpenSans') format('svg'); /* Legacy iOS */
 }
+img {
+  width: 100%;
+  height: auto;
+}
 body {
   font-family: 'Open Sans', Helvetica, Arial, sans-serif;
   font-weight: 300;

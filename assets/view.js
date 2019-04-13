@@ -74,16 +74,15 @@ class  View {
       let scene = this.getActiveScene();
       if(scene) {
         this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
-        let img = "";
-        if(scene.imageUrl) {
-          img = `<img src="${scene.image}">`;
-        }
+        let img = scene.image ? `<img src="${scene.image}">`:"";
+        let chars = scene.characters.map((s) => s.name).join(", ");
         let $storyItem = $(`<div class="storyItem">
           ${img}
           Title: ${scene.title}<br>
-          Description: ${scene.description}
+          Description: ${scene.description}<br>
+          Characters: ${chars}
         </div>`);
-        let $link = $(`<a>edit</a>`);
+        let $link = $(`<a class="edit">edit</a>`);
         $link.click(function(){
           control.editScene(scene);
         });
@@ -373,7 +372,7 @@ class Field {
 
 class TextField extends Field {
   assembleInput(){
-    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value}" />`;
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
   }
 }
 
