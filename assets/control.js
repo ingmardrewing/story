@@ -53,7 +53,7 @@ class Control {
       "Edit Scene",
       $('body'),
       scene,
-      ["title", "description"]
+      ["title", "description", "image", "conflict", "type"]
     );
     md.open();
   }
@@ -66,6 +66,16 @@ class Control {
       newT: x / view.w,
       newY: y / view.h
     }));
+  }
+
+  removeSceneTypeFromScenes(sym) {
+    for (let s of model.story.scenes) {
+      if(s.type === sym) {
+        this.commandQueue.addCommand(new RemoveSceneTypeCommand({
+          scene: s
+        }));
+      }
+    }
   }
 
   updateModelField(currentModel, modelFieldName, newValue) {
@@ -86,6 +96,25 @@ class Control {
     this.commandQueue.redo();
     view.updateSceneSprites();
     view.update();
+  }
+
+  findSymbolSiblings(sym){
+    for( let s in SceneTypeNames ) {
+      if (sym === SceneTypeNames[s]){
+        return SceneTypeNames;
+      }
+    }
+    for( let s in characterArchetypes) {
+      if (sym === characterArchetypes[s]){
+        return characterArchetypes;
+      }
+    }
+    for( let s in throughlines) {
+      if (sym === throughlines[s]){
+        return throughlines;
+      }
+    }
+    return {};
   }
 }
 
@@ -223,12 +252,21 @@ class MoveSceneCommand extends Command {
   }
 }
 
+class RemoveSceneTypeCommand extends Command {
+  do() {
+    this.payload.oldSceneType = this.payload.scene.type;
+    this.payload.scene.type = SceneTypeNames.REGULAR_SCENE;
+  }
+
+  undo() {
+    this.payload.scene.type = this.payload.oldSceneType;
+  }
+}
+
 class UpdateModelFieldCommand extends Command {
   do(){
     let pl = this.payload;
     pl.oldValue = pl.model[pl.fieldName]
-    console.log(pl.oldValue);
-    console.log(pl.newValue);
     pl.model[pl.fieldName] = pl.newValue;
   }
 

@@ -68,8 +68,10 @@ class Model {
 
 class Location {
   name;
-  constructor (name) {
+  image;
+  constructor (name, image) {
     this.name = name;
+    this.image = image;
   }
 }
 
@@ -140,14 +142,15 @@ class StoryValue {
 class Scene {
   t;
   values;
-
   active = false;
+
   title;
   description;
+  conflict;
   image;
+
   location;
   characters;
-  conflict;
   throughline;
 
   type = SceneTypeNames.REGULAR_SCENE;

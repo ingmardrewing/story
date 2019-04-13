@@ -243,13 +243,31 @@ class ModalDialogue {
     this.title = title;
     this.$htmlBody = $htmlBody;
     for (let fieldName of fieldNames) {
-      let field = new TextField(
-        "modalField_" + this.idcounter++,
-        fieldName,
-        model[fieldName],
-        model,
-        fieldName);
-      this.fields.push(field);
+      let field;
+      let t = typeof(model[fieldName])
+      let id = "modalField_" + this.idcounter++;
+
+      switch(t) {
+        case "symbol": {
+          let symbols = control.findSymbolSiblings(model[fieldName]);
+          this.fields.push(new SceneTypeDropDown(
+            id,
+            fieldName,
+            symbols,
+            model,
+            fieldName));
+          break;
+        }
+        default: {
+          this.fields.push(new TextField(
+            id,
+            fieldName,
+            model[fieldName],
+            model,
+            fieldName));
+          break;
+        }
+      }
     }
   }
 
@@ -333,7 +351,6 @@ class Field {
   assembleInput(){ return ""; }
 
   save() {
-    console.log(this, this.id);
     control.updateModelField(
       this.model,
       this.modelFieldName,
@@ -345,5 +362,37 @@ class Field {
 class TextField extends Field {
   assembleInput(){
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value}" />`;
+  }
+}
+
+class SceneTypeDropDown extends Field {
+  assembleInput(){
+    let select = `<select id="${this.id}" name="${this.id}">`
+
+    let currentSym = this.model[this.modelFieldName];
+    for (let key in this.value) {
+      let sym = this.value[key]
+      let selected = currentSym === sym ? ` selected="selected"` : "";
+      select += `<option value="${sym.description}"${selected}>${sym.description}</option>`
+    }
+    select +="</select>"
+    return select;
+  }
+
+  save() {
+    let sym;
+    for (let key in this.value) {
+      let currentsym = this.value[key]
+      if(currentsym.description === $('#' + this.id).val()){
+        sym = currentsym;
+        break;
+      }
+    }
+    control.removeSceneTypeFromScenes(sym);
+    control.updateModelField(
+      this.model,
+      this.modelFieldName,
+      sym
+    );
   }
 }
