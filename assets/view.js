@@ -78,8 +78,10 @@ class  View {
         let chars = scene.characters.map((s) => s.name).join(", ");
         let $storyItem = $(`<div class="storyItem">
           ${img}
-          Title: ${scene.title}<br>
-          Description: ${scene.description}<br>
+          Type: ${scene.type.description || ''}<br>
+          Location: ${scene.type.location || ''}<br>
+          Title: ${scene.title || ''}<br>
+          Description: ${scene.description || ''}<br>
           Characters: ${chars}
         </div>`);
         let $link = $(`<a class="edit">edit</a>`);
