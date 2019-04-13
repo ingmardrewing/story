@@ -22,6 +22,7 @@ class  View {
   $guiCol1;
   $guiCol2;
   $guiCol3;
+  $guiCol4;
 
   w = 1200;
   h = 300;
@@ -49,41 +50,60 @@ class  View {
     this.updateGui();
   }
 
+  getActiveScene() {
+    for (let s of this.sceneSprites) {
+      if (s.scene.active) {
+        return s.scene;
+      }
+    }
+  }
+
   updateGui() {
     if(this.$guiContainer) {
       this.$guiContainer.children().empty();
-      this.$guiCol1.append(`<h2 class="storyItem">Story Values</h2>`);
+
+      let scene = this.getActiveScene()
+      this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
+      if( scene) {
+        this.$guiCol1.append(`<div class="storyItem">
+          Title: ${scene.title}<br>
+          Description: ${scene.description}
+        </div>`);
+      }
+
+      this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
       for( let v in model.getValuesObject()) {
-        this.$guiCol1.append(
+        let active = v === view.scope ? " active" : "";
+        this.$guiCol2.append(
           `<div class="storyItem">
-            <a class="choose" href="javascript:control.selectValue('${v}');">${v}</a>
+            <a class="choose${active}" href="javascript:control.selectValue('${v}');">${v}</a>
             <a class="edit" href="javascript:control.editValue('${v}');">edit</a>
             <a class="delete" href="javascript:control.deleteValue('${v}');">delete</a>
           </div>`);
       }
-      this.$guiCol1.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
+      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
-      this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
+      this.$guiCol3.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
-        this.$guiCol2.append(
+        this.$guiCol3.append(
                   `<div class="storyItem">
                     <a class="choose" href="javascript:control.selectValue('${c.name}');">${c.name}</a>
                     <a class="edit" href="javascript:control.editValue('${c.name}');">edit</a>
                     <a class="delete" href="javascript:control.deleteValue('${c.name}');">delete</a>
         </div>`);
       }
-      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
+      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
-      this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
+      this.$guiCol4.append(`<h2 class="storyItem">Locations</h2>`);
       for( let l of model.story.locations) {
-        this.$guiCol3.append(
+        this.$guiCol4.append(
                           `<div class="storyItem">
                             <a class="choose" href="javascript:control.selectValue('${l.name}');">${l.name}</a>
                             <a class="edit" href="javascript:control.editValue('${l.name}');">edit</a>
                             <a class="delete" href="javascript:control.deleteValue('${l.name}');">delete</a>
         </div>`);
       }
-      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
+      this.$guiCol4.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
 
@@ -92,9 +112,11 @@ class  View {
     this.$guiCol1 = $('<div class="guiCol">');
     this.$guiCol2 = $('<div class="guiCol">');
     this.$guiCol3 = $('<div class="guiCol">');
+    this.$guiCol4 = $('<div class="guiCol">');
     this.$guiContainer.append(this.$guiCol1);
     this.$guiContainer.append(this.$guiCol2);
     this.$guiContainer.append(this.$guiCol3);
+    this.$guiContainer.append(this.$guiCol4);
     $("body").append(this.$guiContainer);
   }
 }
@@ -145,11 +167,6 @@ class SceneSprite {
       this.x + (this.destX - this.x) / 4,
       this.y + (this.destY - this.y) / 4
     );
-  }
-
-  writeToModel() {
-    this.scene.t = this.x / view.w;
-    this.scene.values[view.scope] = this.y / view.h;
   }
 }
 
