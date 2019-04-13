@@ -151,10 +151,16 @@ function draw() {
     lastY = s.y;
   }
 
+  textSize(12);
   for (let s of view.sceneSprites) {
     strokeWeight( s.scene.active ? 2 : 1);
     fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
+    if (s.scene.type !== SceneTypeNames.REGULAR_SCENE) {
+      strokeWeight(1);
+      fill(153);
+      text(s.scene.type.description, Math.round(s.x), Math.round(s.y -20));
+    }
   }
 }
 
