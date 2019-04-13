@@ -1,32 +1,9 @@
 class Control {
-
   commandQueue;
   characterCount = 0;
 
-  init(s) {
+  constructor() {
     this.commandQueue = new CommandQueue();
-
-    model.story = new Story();
-    model.story.title = s.title;
-    model.story.description = s.description;
-    let c = this
-
-    s.values.forEach(function(valueName){
-      c.addValue(valueName);
-    });
-
-    s.characters.forEach(function(params){
-      c.addCharacter(params);
-    });
-
-    s.scenes.forEach(function(params){
-      c.addScene(params);
-    });
-
-    model.story.scenes[0].active = true;
-    view.updateSceneSprites();
-    view.setupGui();
-    view.updateGui();
   }
 
   selectValue(val){
@@ -38,6 +15,20 @@ class Control {
     this.commandQueue.addCommand(new AddValueCommand(valueName));
   }
 
+  editValue(value) {
+   let md = new ModalDialogue(
+      "Edit Value",
+      $('body'),
+      value,
+      ["name"]
+    );
+    md.open();
+  }
+
+  deleteValue(value) {
+    this.commandQueue.addCommand(new DeleteValueCommand(value));
+  }
+
   addCharacter(params) {
     params.id = "character_" + this.characterCount;
     this.commandQueue.addCommand(new AddCharacterCommand(params));
@@ -45,7 +36,26 @@ class Control {
   }
 
   addLocation(locationName) {
+    let params = locationName ? {name: locationName} :{name:"New Location"};
     this.commandQueue.addCommand(new AddLocationCommand(params));
+  }
+
+  selectLocation(location) {
+    // TODO: impl.
+  }
+
+  editLocation(location) {
+    let md = new ModalDialogue(
+      "Edit Location",
+      $('body'),
+      location,
+      ["name", "image"]
+    );
+    md.open();
+  }
+
+  deleteLocation(location){
+    this.commandQueue.addCommand(new DeleteLocationCommand({location:location}));
   }
 
   addScene (params) {
@@ -66,7 +76,7 @@ class Control {
     this.commandQueue.addCommand(new MoveSceneCommand({
       scene: scene,
       oldT: scene.t,
-      oldY: scene.values[view.scope],
+      oldY: scene.values.get(view.scope),
       newT: x / view.w,
       newY: y / view.h
     }));
@@ -191,14 +201,33 @@ class AddValueCommand extends Command {
     this.value = new StoryValue(this.payload);
     model.story.addStoryValue(this.value);
     for(let s of model.story.getScenes()) {
-      s.addValue(this.value.name, 0.5);
+      s.values.set(this.value, 0.5);
     }
   }
 
   undo(){
-    removeItemFromArray(model.story.values, this.value);
+    model.story.values.delete(this.value) ;
     for(let s of model.story.getScenes()) {
-      removeItemFromArray(s.values, this.value);
+      s.values.delete(this.value);
+    }
+  }
+}
+
+class DeleteValueCommand extends Command {
+  s2vmap;
+  do () {
+    this.s2vmap = new Map();
+    model.story.values.delete(this.payload);
+    for (let s of model.story.scenes) {
+      this.s2vmap.set(s, s.values.get(this.payload))
+      s.values.delete(this.payload);
+    }
+  }
+
+  undo() {
+    model.story.values.set(this.payload, 0.5);
+    for (let s of model.story.scenes) {
+      s.values.set(this.payload, this.s2vmap.get(s))
     }
   }
 }
@@ -206,12 +235,22 @@ class AddValueCommand extends Command {
 class AddLocationCommand extends Command {
   loc;
   do() {
-    this.loc = new Location(payload);
+    this.loc = new Location(this.payload);
     model.story.addLocation(this.loc);
   }
 
   undo() {
     removeItemFromArray(model.story.locations, this.location);
+  }
+}
+
+class DeleteLocationCommand extends Command {
+  do() {
+    removeItemFromArray(model.story.locations, this.payload.location);
+  }
+
+  undo() {
+    model.story.addLocation(this.payload.location);
   }
 }
 
@@ -227,7 +266,19 @@ class AddSceneFromJSONCommand extends Command {
     }
     let loc = model.story.getLocationByName(this.payload.location);
     let type = model.getSceneTypeByName(this.payload.type)
-    this.scene = new Scene(this.payload, characters, loc, type);
+
+    let vmap = new Map();
+    model.story.values
+      .forEach((k, v, m) => vmap.set(v, this.payload.values[v.name] ))
+    this.scene = new Scene(
+      this.payload,
+      characters,
+      loc,
+      type,
+      {name: "througline"},
+      "",
+      vmap);
+
     model.story.addScene(this.scene);
   }
 
@@ -241,7 +292,7 @@ class AddSceneFromJSONCommand extends Command {
 class MoveSceneCommand extends Command {
   do() {
       this.payload.scene.t = this.payload.newT;
-      this.payload.scene.values[view.scope] = this.payload.newY;
+      this.payload.scene.values.set(view.scope, this.payload.newY);
 
       this.payload.scene.sprite.readDestinationFromModel();
       this.payload.scene.sprite.syncPosition();
@@ -249,7 +300,7 @@ class MoveSceneCommand extends Command {
 
   undo() {
       this.payload.scene.t = this.payload.oldT;
-      this.payload.scene.values[view.scope] = this.payload.oldY;
+      this.payload.scene.values.set(view.scope, this.payload.oldY);
 
       this.payload.scene.sprite.readDestinationFromModel();
       this.payload.scene.sprite.syncPosition();
@@ -293,8 +344,11 @@ function createSceneAt(x, y) {
   if (x < 0 || y < 0 || x > view.w || y > view.h) {
     return;
   }
-  let vo = model.getValuesObject();
-  vo[view.scope] = mouseY / view.h;
+
+  let vertical = mouseY / view.h;
+  let vo = new Map();
+  model.story.values
+    .forEach((k,v,m) => vo.set(k, k === view.scope ? vertical : 0.5));
 
   control.addScene({
     title: "",

@@ -15,7 +15,7 @@ const thres = {
 Object.freeze(thres);
 
 class  View {
-  scope = "Suspense";
+  scope ;
   sceneRadius = 15;
   sceneSprites = [];
   $guiContainer;
@@ -93,40 +93,43 @@ class  View {
       }
 
       this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
-      for( let v in model.getValuesObject()) {
-        let activeClass = v === view.scope ? " active" : "";
-        this.$guiCol2.append(
-          `<div class="storyItem">
-            <a class="choose${activeClass}" href="javascript:control.selectValue('${v}');">${v}</a>
-            <a class="edit" href="javascript:control.editValue('${v}');">edit</a>
-            <a class="delete" href="javascript:control.deleteValue('${v}');">delete</a>
-          </div>`);
-      }
+      model.story.values.forEach((k,v,m) => this.$guiCol2.append( buildStoryItem("Value", v)));
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
         this.$guiCol2.append(
-                  `<div class="storyItem">
-                    <a class="choose" href="javascript:control.selectCharacter('${c.name}');">${c.name}</a>
-                    <a class="edit" href="javascript:control.editCharacter('${c.name}');">edit</a>
-                    <a class="delete" href="javascript:control.deleteLocations('${c.name}');">delete</a>
-        </div>`);
+          buildStoryItem("Character", c)
+        );
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
       for( let l of model.story.locations) {
         this.$guiCol3.append(
-                          `<div class="storyItem">
-                            <a class="choose" href="javascript:control.selectLocation('${l.name}');">${l.name}</a>
-                            <a class="edit" href="javascript:control.editLocation('${l.name}');">edit</a>
-                            <a class="delete" href="javascript:control.deleteLocation('${l.name}');">delete</a>
-        </div>`);
+          buildStoryItem("Location", l)
+        );
       }
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
+}
+
+function buildStoryItem (fnNamePart, entity) {
+  let select = $(`<a class="choose">${entity.name}</a>`)
+  select.click(function(){ control["select"+fnNamePart](entity); })
+
+  let edit = $(`<a class="edit">edit</a>`);
+  edit.click(function(){ control["edit"+fnNamePart](entity); })
+
+  let del = $(`<a class="delete">delete</a>`);
+  del.click(function(){ control["delete"+fnNamePart](entity); })
+
+  let $item = $(`<div class="storyItem"></div>`);
+  $item.append(select);
+  $item.append(edit);
+  $item.append(del);
+  return $item;
 }
 
 class SceneSprite {
@@ -159,9 +162,10 @@ class SceneSprite {
   }
 
   readDestinationFromModel() {
+    let y = this.scene.values ? this.scene.values.get(view.scope) :0.5;
     this.setDestination(
       this.scene.t * view.w,
-      this.scene.values[view.scope] * view.h
+      y * view.h
     );
   }
 
@@ -248,7 +252,6 @@ class ModalDialogue {
       let t = typeof(model[fieldName])
       t = Array.isArray(model[fieldName]) ? "array" : t;
       let id = "modalField_" + this.idcounter++;
-      console.log(t);
 
       switch(t) {
         case "array": {

@@ -78,16 +78,21 @@ a:hover {
   color: #FFFFFF;
   background-color: #FFAA00;
 }
+.storyItem .choose {
+  cursor: pointer;
+}
 .storyItem .choose.active {
   color: #FFAA00;
 }
 .storyItem .edit{
   position: absolute;
   right: 55px;
+  cursor: pointer;
 }
 .storyItem .delete {
   position: absolute;
   right: 5px;
+  cursor: pointer;
 }
 
 .overlay {

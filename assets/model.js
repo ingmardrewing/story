@@ -38,14 +38,6 @@ class Model {
     this.story = new Story();
   }
 
-  getValuesObject() {
-    let vo = {};
-    for(let v of this.story.values) {
-      vo[v.name] = 0.5;
-    }
-    return vo;
-  }
-
   getScenes() {
     return this.story.getScenes();
   }
@@ -69,9 +61,9 @@ class Model {
 class Location {
   name;
   image;
-  constructor (name, image) {
-    this.name = name;
-    this.image = image;
+  constructor (params) {
+    this.name = params.name;
+    this.image = params.image;
   }
 }
 
@@ -81,18 +73,18 @@ class Story {
 
   scenes;
   characters;
-  values;
+  values = new Map();
   locations;
 
   constructor(){
     this.locations = [];
     this.scenes = [];
-    this.values = [];
+    this.values = new Map();
     this.characters = [];
   }
 
   addStoryValue(storyValue) {
-    this.values.push(storyValue);
+    this.values.set(storyValue, 0.5);
   }
 
   getStoryValueByName(valName) {
@@ -141,7 +133,7 @@ class StoryValue {
 
 class Scene {
   t;
-  values;
+  values = new Map();
   active = false;
 
   title;
@@ -157,20 +149,30 @@ class Scene {
 
   sprite;
 
-  constructor(params, characters, location, type, throughline, image) {
+  constructor(params,
+            characters,
+            location,
+            type,
+            throughline,
+            image,
+            values) {
     this.title = params.title;
     this.description= params.description;
     this.t = params.t;
     this.location = location;
     this.characters = characters;
     this.throughline = params.throughline;
-    this.values = params.values;
+    this.values = values;
     this.type = type;
     this.image = image;
   }
 
   addCharacter(char) {
     this.characters.push(char);
+  }
+
+  addValue(valueObj, value){
+    this.values.set(valueObj, value)
   }
 
   setSprite(sprite) {

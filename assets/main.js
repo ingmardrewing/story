@@ -5,14 +5,13 @@ function preload() {
 }
 
 function setup() {
-
   model = new Model();
   control = new Control();
   view = new View();
 
   createCanvas(view.w, view.h);
 
-  control.init({
+  let data = {
     title: "Red Riding Hood",
     description: "A food delivery service employee gets eaten by a wolf and reemerges from his belly once the wolf gets killed and cut open.",
     locations:[
@@ -113,7 +112,30 @@ function setup() {
         characters: ["Hunter", "Wolf", "Granny", "Red Riding Hood"]
       }
     ],
-  });
+  } ;
+
+    model.story = new Story();
+    model.story.title = data.title;
+    model.story.description = data.description;
+
+    data.values.forEach(function(valueName){
+      control.addValue(valueName);
+    });
+
+    data.characters.forEach(function(params){
+      control.addCharacter(params);
+    });
+
+    view.scope = model.story.values.entries().next().value[0];
+
+    data.scenes.forEach(function(params){
+      control.addScene(params);
+    });
+
+    model.story.scenes[0].active = true;
+    view.updateSceneSprites();
+    view.setupGui();
+    view.updateGui();
 }
 
 function draw() {
@@ -141,6 +163,7 @@ function draw() {
   let lastY = -1;
   strokeWeight(1);
   view.sceneSprites.sort(function(a, b){return a.x-b.x;});
+
   for (let s of view.sceneSprites) {
     if(!s.dragged) {
       s.approxPosition();
@@ -167,10 +190,8 @@ function draw() {
 
 function mousePressed(e) {
   if( $('.overlay').length > 0 ) {
-    console.log("overlay is active");
     return ;
   }
-  console.log("ran through");
   let noHit = true;
   for (let s of view.sceneSprites) {
     let distance = dist(mouseX, mouseY, s.x, s.y );
