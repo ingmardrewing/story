@@ -149,9 +149,9 @@ class Scene {
   conflict;
   image;
 
-  location;
-  characters;
+  location ;
   throughline;
+  characters = [];
 
   type = SceneTypeNames.REGULAR_SCENE;
 
@@ -197,6 +197,7 @@ class StoryCharacter {
   image;
 
   constructor (params, archetype) {
+    this.id = params.id;
     this.name = params.name;
     this.purpose = params.purpose;
     this.motivation = params.motivation;

@@ -1,6 +1,7 @@
 class Control {
 
   commandQueue;
+  characterCount = 0;
 
   init(s) {
     this.commandQueue = new CommandQueue();
@@ -38,7 +39,9 @@ class Control {
   }
 
   addCharacter(params) {
+    params.id = "character_" + this.characterCount;
     this.commandQueue.addCommand(new AddCharacterCommand(params));
+    this.characterCount += 1;
   }
 
   addLocation(locationName) {
@@ -54,7 +57,7 @@ class Control {
       "Edit Scene",
       $('body'),
       scene,
-      ["title", "description", "image", "conflict", "type"]
+      ["title", "description", "image", "conflict", "type", "characters"]
     );
     md.open();
   }
@@ -216,6 +219,7 @@ class AddSceneFromJSONCommand extends Command {
   scene;
   do() {
     let characters = [];
+    console.log(typeof(characters))
     for (let charName in this.payload.characters) {
       let char = model.story.getCharacterByName(charName);
       if(char) {

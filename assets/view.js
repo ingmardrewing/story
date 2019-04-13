@@ -245,9 +245,21 @@ class ModalDialogue {
     for (let fieldName of fieldNames) {
       let field;
       let t = typeof(model[fieldName])
+      t = Array.isArray(model[fieldName]) ? "array" : t;
       let id = "modalField_" + this.idcounter++;
+      console.log(t);
 
       switch(t) {
+        case "array": {
+          this.fields.push(new CharacterCheckboxes(
+            id,
+            fieldName,
+            model[fieldName],
+            model,
+            fieldName
+          ));
+          break;
+        }
         case "symbol": {
           let symbols = control.findSymbolSiblings(model[fieldName]);
           this.fields.push(new SceneTypeDropDown(
@@ -393,6 +405,33 @@ class SceneTypeDropDown extends Field {
       this.model,
       this.modelFieldName,
       sym
+    );
+  }
+}
+
+class CharacterCheckboxes extends Field {
+  assembleInput(){
+    let html = `<div>`;
+    for( let c of model.story.characters ){
+      let checked = this.model.characters.includes(c) ? ` checked="checked"` : "";
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.name}</label></div>`
+      c.name
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  save () {
+    let newCharacters = [];
+    for( let c of model.story.characters ){
+      if($('#' + c.id).prop("checked")){
+        newCharacters.push(c);
+      }
+    }
+    control.updateModelField(
+      this.model,
+      this.modelFieldName,
+      newCharacters
     );
   }
 }
