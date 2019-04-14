@@ -31,11 +31,53 @@ const throughlines = {
 };
 Object.freeze(throughlines);
 
+class Field {
+  name;
+  label;
+  description;
+  characteristic;
+
+  constructor(name, label, description, characteristic) {
+    this.name = name;
+    this.label = label;
+    this.description = description;
+    this.characteristic = characteristic;
+  }
+}
+
+class ShortText extends Field {}
+class LongText extends Field {}
+class SingleValueList extends Field {}
+class MultipleValueList extends Field {}
+
 class Model {
   story;
+  fields;
 
-  constructor(){
+  constructor() {
     this.story = new Story();
+    this.initFields();
+  }
+
+  initFields() {
+    this.fields = new Map();
+    this.fields.set("image", new ShortText("image", "Image", "The url of an image or the image as data url"));
+    this.fields.set("name", new ShortText("name", "Name", "The name of this element of the story"));
+    this.fields.set("description", new LongText("description", "Description", "An elaborate description, containing details not conveyed by the name"));
+
+    this.fields.set("conflict", new ShortText("conflict", "Conflict", "The conflict shown within the scene"));
+    this.fields.set("type", new SingleValueList("type", "Scenetype", "The type of the scene as one of 'Inciting Incident', 'Plot Point I', 'Central Point', 'Plot Point II', 'Climax'", SceneTypeNames));
+    this.fields.set("characters", new MultipleValueList("characters", "Characters", "The characters involved in the scene", this.story.characters));
+    this.fields.set("location", new SingleValueList("location", "Location", "The location where a scenes takes place", this.story.locations));
+    this.fields.set("throughline", new SingleValueList("throughline", "Thgroughline", "The throughline of the scene", throughlines));
+
+    this.fields.set("archetype", new SingleValueList("archetype", "Archetype", "Character archetype", characterArchetypes));
+    this.fields.set("purpose", new LongText("purpose", "Purpose", "The character's purpose"));
+    this.fields.set("motivation", new LongText("motivation", "Motivation", "The character's motivation, i.e. the emotions and their source driving the character"));
+    this.fields.set("methodology", new LongText("methodology", "Motivation", "The kind of methods the characters uses to achieve his goals"));
+    this.fields.set("evaluation", new LongText("evaluation", "Evaluation", "The way the character judges the outcome of events"));
+    this.fields.set("biography", new LongText("biography", "Biography", "The character's biography up to the starting point of the story"));
+    this.fields.set("stressResponse", new LongText("stressResponse", "Stress Response", "The way the character acts under stress"));
   }
 
   getScenes() {
@@ -64,7 +106,7 @@ class Story {
 
   scenes;
   characters;
-  values = new Map();
+  values;
   locations;
 
   constructor(){
@@ -139,6 +181,8 @@ class Scene {
   values = new Map();
   active = false;
 
+  fields = new Map();
+
   name;
   description;
   conflict;
@@ -159,6 +203,8 @@ class Scene {
             throughline,
             image,
             values) {
+    this.fields.set()
+
     this.name = params.name;
     this.description= params.description;
     this.t = params.t;
@@ -201,6 +247,8 @@ class Character {
   biogaphy;
   image;
 
+  fields = new Map();
+
   constructor (params, archetype) {
     this.id = params.id;
     this.name = params.name;
@@ -211,6 +259,16 @@ class Character {
     this.biography = params.biography;
     this.image = params.image;
     this.archetype = archetype ;
+
+    this.fields.set(model.fields.get("image"), params.image);
+    this.fields.set(model.fields.get("archetype"), archetype);
+    this.fields.set(model.fields.get("name"), params.name);
+    this.fields.set(model.fields.get("description"), params.description);
+    this.fields.set(model.fields.get("purpose"), params.purpose);
+    this.fields.set(model.fields.get("motivation"), params.motivation);
+    this.fields.set(model.fields.get("methodology"), params.methodology);
+    this.fields.set(model.fields.get("evaluation"), params.evaluation);
+    this.fields.set(model.fields.get("biography"), params.biography);
   }
 }
 

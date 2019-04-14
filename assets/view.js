@@ -14,6 +14,29 @@ const thres = {
 }
 Object.freeze(thres);
 
+class FormFactory {
+  static makeFormField(id, dataField, entity) {
+    switch(dataField.constructor.name){
+      case "ShortText": {
+        return new TextFieldNG( id, dataField, entity );
+        break;
+      }
+      case "LongText": {
+        return new TextAreaNG( id, dataField, entity );
+        break;
+      }
+      case "SingleValueList": {
+        return new DropDownNG( id, dataField, entity );
+        break;
+      }
+      case "MultipleValueList": {
+        return new CheckboxesNG( id, dataField, entity );
+        break;
+      }
+    }
+  }
+}
+
 class  View {
   scope ;
   sceneRadius = 15;
@@ -277,45 +300,55 @@ class ModalDialogue {
 
   idcounter = 0;
 
-  constructor(name, $htmlBody, model, fieldNames){
+  constructor(name, $htmlBody, entity, fieldNames){
     this.name= name;
     this.$htmlBody = $htmlBody;
-    for (let fieldName of fieldNames) {
-      let field;
-      let t = typeof(model[fieldName])
-      t = Array.isArray(model[fieldName]) ? "array" : t;
-      let id = "modalField_" + this.idcounter++;
+    if (entity.constructor.name == "Character") {
+      let formFields = this.fields;
+      let c = this.idcounter;
+      entity.fields.forEach(function(v, fieldType, m){
+        let id = "modalField_" + c++;
+        formFields.push(
+         FormFactory.makeFormField(id, fieldType, entity)
+        );
+      });
+    }
+    else{
+      for (let fieldName of fieldNames) {
+        let t = typeof(entity[fieldName])
+        t = Array.isArray(entity[fieldName]) ? "array" : t;
+        let id = "modalField_" + this.idcounter++;
 
-      console.log(t, model[fieldName]);
-      switch(t) {
-        case "array": {
-          this.fields.push(new CharacterCheckboxes(
-            id,
-            fieldName,
-            model[fieldName],
-            model,
-            fieldName
-          ));
-          break;
-        }
-        case "symbol": {
-          let symbols = control.findSymbolSiblings(model[fieldName]);
-          this.fields.push(new SceneTypeDropDown(
-            id,
-            fieldName,
-            symbols,
-            model,
-            fieldName));
-          break;
-        }
-        default: {
-          this.fields.push(new TextField(
-            id,
-            fieldName,
-            model[fieldName],
-            model,
-            fieldName));
-          break;
+        switch(t) {
+          case "array": {
+            this.fields.push(new CharacterCheckboxes(
+              id,
+              fieldName,
+              entity[fieldName],
+              entity,
+              fieldName
+            ));
+            break;
+          }
+          case "symbol": {
+            let symbols = control.findSymbolSiblings(entity[fieldName]);
+            this.fields.push(new SceneTypeDropDown(
+              id,
+              fieldName,
+              symbols,
+              entity,
+              fieldName));
+            break;
+          }
+          default: {
+            this.fields.push(new TextField(
+              id,
+              fieldName,
+              entity[fieldName],
+              entity,
+              fieldName));
+            break;
+          }
         }
       }
     }
@@ -375,6 +408,112 @@ class ModalDialogue {
   }
 }
 
+class FormFieldNG {
+  id;
+  dataField;
+  entity;
+
+  constructor(id, dataField, entity){
+    this.id = id;
+    this.dataField = dataField;
+    this.entity = entity;
+  }
+
+  assembleHtml() {
+    let input = this.assembleInput();
+    return `<label class="formLabel" for="${this.id}">${this.dataField.label}</label>
+          ${input}`;
+  }
+
+  assembleInput(){ return ""; }
+
+  save() {
+    control.updateModelField(
+      this.entity,
+      this.dataField,
+      $('#' + this.id).val()
+    );
+  }
+}
+
+class TextFieldNG extends FormFieldNG {
+  assembleInput(){
+    let val = this.entity.fields.get(this.dataField) || '';
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${val}" />`;
+  }
+}
+
+class TextAreaNG extends FormFieldNG {
+  assembleInput(){
+    let val = this.entity.fields.get(this.dataField) || '';
+    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text"/>${val}</textare>`;
+  }
+}
+
+class DropDownNG extends FormFieldNG {
+  assembleInput(){
+    let curVal = this.entity.fields.get(this.dataField);
+    let select = `<select id="${this.id}" name="${this.id}">`
+    for ( let char in this.dataField.characteristic) {
+      let sym = this.dataField.characteristic[char];
+      let selected = curVal === sym ? ' selected="selected"' : '';
+      select += `<option value="${sym.description}"${selected}>${sym.description}</option>`
+    }
+    select +="</select>"
+    return select;
+  }
+
+  save() {
+    /*
+    let sym;
+    let selectedValue = $('#' + this.id).val();
+    this.dataField.characteristic.forEach(function(v, k, m){
+      if(currentsym.description === selectedValue){
+        sym = v;
+        break;
+      }
+    });
+    control.removeSceneTypeFromScenes(sym);
+    control.updateModelField(
+      this.model,
+      this.modelFieldName,
+      sym
+    );
+    */
+  }
+}
+
+class CheckboxesNG extends FormFieldNG {
+  assembleInput(){
+    let html = `<div>`;
+    let preselected = this.entity.fields(this.dataField);
+    this.dataField.characteristic.forEach(function(v, k, m){
+      let checked = preselected.includes(v) ? ` checked="checked"` : '';
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.name}</label></div>`
+    });
+    html += `</div>`;
+    return html;
+  }
+
+  save () {
+    /*
+    let newCharacters = [];
+    for( let c of model.story.characters ){
+      if($('#' + c.id).prop("checked")){
+        newCharacters.push(c);
+      }
+    }
+    control.updateModelField(
+      this.model,
+      this.modelFieldName,
+      newCharacters
+    );
+    */
+  }
+}
+
+
+
 class FormField {
   model;
   modelFieldName;
@@ -413,6 +552,8 @@ class TextField extends FormField {
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
   }
 }
+
+
 
 class SceneTypeDropDown extends FormField {
   assembleInput(){

@@ -24,16 +24,6 @@ class Control {
     this.commandQueue.addCommand(new AddValueCommand(valueName));
   }
 
-  editValue(value) {
-   let md = new ModalDialogue(
-      "Edit Value",
-      $('body'),
-      value,
-      ["name"]
-    );
-    md.open();
-  }
-
   delete(entity) {
     switch(entity.constructor.name) {
       case "Value":{
@@ -65,7 +55,6 @@ class Control {
     this.commandQueue.addCommand(new AddLocationCommand(params));
   }
 
-
   edit(entity) {
     if(!(entity && entity.constructor)){
       return;
@@ -91,11 +80,12 @@ class Control {
       }
     }
 
+    console.log(entity.fields);
     let md = new ModalDialogue(
       `Edit ${entity.constructor.name}`,
       $('body'),
       entity,
-      fields
+      fields // TODO: remove when new fields are ready
     );
     md.open();
   }
