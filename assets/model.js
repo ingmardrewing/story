@@ -58,15 +58,6 @@ class Model {
   }
 }
 
-class Location {
-  name;
-  image;
-  constructor (params) {
-    this.name = params.name;
-    this.image = params.image;
-  }
-}
-
 class Story {
   title;
   description;
@@ -121,6 +112,18 @@ class Story {
         return item;
       }
     }
+  }
+}
+
+class Location {
+  name;
+  image;
+  description;
+
+  constructor (params) {
+    this.name = params.name;
+    this.image = params.image;
+    this.description = params.description;
   }
 }
 
@@ -207,7 +210,7 @@ class StoryCharacter {
     this.evaluation = params.evaluation;
     this.biography = params.biography;
     this.image = params.image;
-    this.archetype = archetype [];
+    this.archetype = archetype || [];
   }
 }
 

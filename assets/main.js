@@ -198,6 +198,7 @@ function mousePressed(e) {
     if (distance < view.sceneRadius) {
       s.dragged = true;
       s.scene.activate();
+      view.updateDetailView(s.scene);
       noHit = false;
     }
     else {
@@ -237,4 +238,9 @@ hotkeys("ctr+z,cmd+z", function keyPressed(e, h) {
 
 hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
   control.redo();
+});
+
+hotkeys("enter,return", function keyPressed(e, h) {
+  console.log("hit enter");
+  $(".save").trigger("click");
 });

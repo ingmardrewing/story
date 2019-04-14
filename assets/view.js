@@ -69,37 +69,17 @@ class  View {
 
   updateGui() {
     if(this.$guiContainer) {
-      this.$guiContainer.children().empty();
-
-      let scene = this.getActiveScene();
-      if(scene) {
-        this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
-        let img = scene.image ? `<img src="${scene.image}">`:"";
-        let chars = scene.characters.map((s) => s.name).join(", ");
-        let $storyItem = $(`<div class="storyItem">
-          ${img}
-          Type: ${scene.type.description || ''}<br>
-          Location: ${scene.type.location || ''}<br>
-          Title: ${scene.title || ''}<br>
-          Description: ${scene.description || ''}<br>
-          Characters: ${chars}
-        </div>`);
-        let $link = $(`<a class="edit">edit</a>`);
-        $link.click(function(){
-          control.editScene(scene);
-        });
-        $storyItem.append($link);
-        this.$guiCol1.append($storyItem);
-      }
+      this.$guiCol2.empty();
+      this.$guiCol3.empty();
 
       this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach((k,v,m) => this.$guiCol2.append( buildStoryItem("Value", v)));
+      model.story.values.forEach((k,v,m) => this.$guiCol2.append( this.buildStoryItem("Value", v)));
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
         this.$guiCol2.append(
-          buildStoryItem("Character", c)
+          this.buildStoryItem("Character", c)
         );
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
@@ -107,30 +87,92 @@ class  View {
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
       for( let l of model.story.locations) {
         this.$guiCol3.append(
-          buildStoryItem("Location", l)
+          this.buildStoryItem("Location", l)
         );
       }
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
+
+  updateDetailView(entity) {
+    console.log(entity);
+    if(!(entity && entity.constructor)){
+      return ;
+    }
+    this.$guiCol1.empty();
+
+    let $storyItem;
+    let img = entity.image ? `<img src="${entity.image}">`:"";
+    if(entity.constructor.name === "Scene") {
+      this.$guiCol1.append(`<h2 class="storyItem">Scene: ${entity.title}</h2>`);
+      let chars = entity.characters.map((s) => s.name).join(", ");
+      $storyItem = $(`<div class="storyItem">
+        ${img}
+        Type: ${entity.type.description || ''}<br>
+        Location: ${entity.type.location || ''}<br>
+        Title: ${entity.title || ''}<br>
+        Description: ${entity.description || ''}<br>
+        Characters: ${chars}
+      </div>`);
+    }
+
+    if(entity.constructor.name === "Location") {
+      this.$guiCol1.append(`<h2 class="storyItem">Location: ${entity.name}</h2>`);
+      $storyItem = $(`<div class="storyItem">
+        ${img}
+        Name: ${entity.name|| ''}<br>
+        Description: ${entity.description || ''}<br>
+      </div>`);
+    }
+
+    if(entity.constructor.name === "StoryValue") {
+      this.$guiCol1.append(`<h2 class="storyItem">Value: ${entity.name}</h2>`);
+      $storyItem = $(`<div class="storyItem">
+        ${img}
+        Name: ${entity.name|| ''}<br>
+      </div>`);
+    }
+
+    if(entity.constructor.name === "StoryCharacter") {
+      this.$guiCol1.append(`<h2 class="storyItem">Character: ${entity.name}</h2>`);
+      $storyItem = $(`<div class="storyItem">
+        ${img}
+        Name: ${entity.name || ''}<br>
+        Archetype: ${entity.archetype || ''}<br>
+        Purpose: ${entity.purpose || ''}<br>
+        Motivation: ${entity.motivation || ''}<br>
+        Methodology: ${entity.methodology || ''}<br>
+        Biography: ${entity.biography || ''}<br>
+      </div>`);
+    }
+
+    let $link = $(`<a class="edit">edit</a>`);
+    $link.click(function(){
+      control.edit(entity);
+    });
+    $storyItem.append($link);
+    this.$guiCol1.append($storyItem);
+  }
+
+  buildStoryItem (fnNamePart, entity) {
+    let select = $(`<a class="choose">${entity.name}</a>`)
+    select.click(function(){ control["select"+fnNamePart](entity); })
+
+    let edit = $(`<a class="edit">edit</a>`);
+    edit.click(function(){ control.edit(entity); })
+
+    let del = $(`<a class="delete">delete</a>`);
+    del.click(function(){ control["delete"+fnNamePart](entity); })
+
+    let $item = $(`<div class="storyItem"></div>`);
+    $item.append(select);
+    $item.append(edit);
+    $item.append(del);
+    return $item;
+  }
+
 }
 
-function buildStoryItem (fnNamePart, entity) {
-  let select = $(`<a class="choose">${entity.name}</a>`)
-  select.click(function(){ control["select"+fnNamePart](entity); })
-
-  let edit = $(`<a class="edit">edit</a>`);
-  edit.click(function(){ control["edit"+fnNamePart](entity); })
-
-  let del = $(`<a class="delete">delete</a>`);
-  del.click(function(){ control["delete"+fnNamePart](entity); })
-
-  let $item = $(`<div class="storyItem"></div>`);
-  $item.append(select);
-  $item.append(edit);
-  $item.append(del);
-  return $item;
-}
 
 class SceneSprite {
   x = 0;

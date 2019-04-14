@@ -8,6 +8,7 @@ class Control {
 
   selectValue(val){
     view.scope = val;
+    view.updateDetailView(val);
     view.update();
   }
 
@@ -36,14 +37,8 @@ class Control {
     this.characterCount += 1;
   }
 
-  editCharacter(character) {
-    let md = new ModalDialogue(
-      "Edit Value",
-      $('body'),
-      character,
-      ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"]
-    );
-    md.open();
+  selectCharacter(character) {
+    view.updateDetailView(character);
   }
 
   deleteCharacter(character) {
@@ -56,15 +51,43 @@ class Control {
   }
 
   selectLocation(location) {
-    // TODO: impl.
+    view.updateDetailView(location);
   }
 
-  editLocation(location) {
+  edit(entity) {
+    if(!(entity && entity.constructor)){
+      return;
+    }
+
+    let headline, fields;
+    switch(entity.constructor.name){
+      case "StoryCharacter":{
+        headline = "Edit Character";
+        fields = ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"];
+        break;
+      }
+      case "Scene":{
+        headline = "Edit Scene";
+        fields = ["image", "title", "description", "conflict", "type", "characters", "location", "throughline" ];
+        break;
+      }
+      case "Location":{
+        headline = "Edit Location";
+        fields = ["name", "description","image"];
+        break;
+      }
+      case "StoryValue":{
+        headline = "Edit Value";
+        fields = ["name" ];
+        break;
+      }
+    }
+
     let md = new ModalDialogue(
-      "Edit Location",
+      headline,
       $('body'),
-      location,
-      ["name", "image"]
+      entity,
+      fields
     );
     md.open();
   }
@@ -77,15 +100,6 @@ class Control {
     this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));
   }
 
-  editScene(scene) {
-    let md = new ModalDialogue(
-      "Edit Scene",
-      $('body'),
-      scene,
-      ["title", "description", "image", "conflict", "type", "characters"]
-    );
-    md.open();
-  }
 
   moveScene(scene, x, y) {
     this.commandQueue.addCommand(new MoveSceneCommand({
