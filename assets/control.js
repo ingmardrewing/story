@@ -30,9 +30,24 @@ class Control {
   }
 
   addCharacter(params) {
-    params.id = "character_" + this.characterCount;
-    this.commandQueue.addCommand(new AddCharacterCommand(params));
+    let charData = params || {};
+    charData.id = "character_" + this.characterCount;
+    this.commandQueue.addCommand(new AddCharacterCommand(charData));
     this.characterCount += 1;
+  }
+
+  editCharacter(character) {
+    let md = new ModalDialogue(
+      "Edit Value",
+      $('body'),
+      character,
+      ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"]
+    );
+    md.open();
+  }
+
+  deleteCharacter(character) {
+    this.commandQueue.addCommand(new DeleteCharacterCommand(character));
   }
 
   addLocation(locationName) {
@@ -213,6 +228,27 @@ class AddValueCommand extends Command {
   }
 }
 
+class DeleteCharacterCommand extends Command {
+  scenes;
+  do () {
+    this.scenes = [];
+
+    removeItemFromArray(model.story.characters, this.payload);
+    for (let s of model.story.scenes) {
+      if (s.characters.includes(this.payload)){
+        this.scenes.push(s);
+      }
+      removeItemFromArray(s.characters, this.payload);
+    }
+  }
+
+  undo() {
+    model.story.characters.push(this.payload);
+    for (let s of this.scenes) {
+      s.characters.push(this.payload);
+    }
+  }
+}
 class DeleteValueCommand extends Command {
   s2vmap;
   do () {

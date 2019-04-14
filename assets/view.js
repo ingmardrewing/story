@@ -288,7 +288,6 @@ class ModalDialogue {
   }
 
   open() {
-    noLoop();
     this.assembleForm();
     this.assembleOverlay();
     this.displayOverlay();
