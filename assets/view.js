@@ -64,6 +64,7 @@ class  View {
       this['$guiCol'+i] = $('<div class="guiCol">');
       this.$guiContainer.append(this['$guiCol'+i]);
     }
+    this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
   }
 

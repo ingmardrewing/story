@@ -87,12 +87,16 @@ a:hover {
 .storyItem .edit{
   position: absolute;
   right: 55px;
+  bottom: 5px;
   cursor: pointer;
 }
 .storyItem .delete {
   position: absolute;
   right: 5px;
   cursor: pointer;
+}
+.detailView .storyItem .edit{
+  right: 5px;
 }
 
 .overlay {
