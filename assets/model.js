@@ -207,7 +207,7 @@ class StoryCharacter {
     this.evaluation = params.evaluation;
     this.biography = params.biography;
     this.image = params.image;
-    this.archetype = archetype;
+    this.archetype = archetype [];
   }
 }
 

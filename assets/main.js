@@ -238,4 +238,3 @@ hotkeys("ctr+z,cmd+z", function keyPressed(e, h) {
 hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
   control.redo();
 });
-
