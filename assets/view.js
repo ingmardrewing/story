@@ -27,6 +27,8 @@ class  View {
   w = 1200;
   h = 300;
 
+  detailViewEntity;
+
   setScope(scope) {
     this.scope = scope;
   }
@@ -47,6 +49,7 @@ class  View {
     for ( let ss of this.sceneSprites) {
       ss.readDestinationFromModel();
     }
+    this.updateDetailView(view.detailViewEntity);
     this.updateGui();
   }
 
@@ -96,63 +99,55 @@ class  View {
   }
 
   updateDetailView(entity) {
-    console.log(entity);
     if(!(entity && entity.constructor)){
       return ;
     }
+    this.detailViewEntity = entity;
     this.$guiCol1.empty();
+    this.$guiCol1.append(`<h2 class="storyItem">${entity.constructor.name}: ${entity.name}</h2>`);
 
-    let $storyItem;
-    let img = entity.image ? `<img src="${entity.image}">`:"";
-    if(entity.constructor.name === "Scene") {
-      this.$guiCol1.append(`<h2 class="storyItem">Scene: ${entity.title}</h2>`);
-      let chars = entity.characters.map((s) => s.name).join(", ");
-      $storyItem = $(`<div class="storyItem">
-        ${img}
-        Type: ${entity.type.description || ''}<br>
-        Location: ${entity.type.location || ''}<br>
-        Title: ${entity.title || ''}<br>
-        Description: ${entity.description || ''}<br>
-        Characters: ${chars}
-      </div>`);
-    }
-
-    if(entity.constructor.name === "Location") {
-      this.$guiCol1.append(`<h2 class="storyItem">Location: ${entity.name}</h2>`);
-      $storyItem = $(`<div class="storyItem">
-        ${img}
-        Name: ${entity.name|| ''}<br>
-        Description: ${entity.description || ''}<br>
-      </div>`);
-    }
-
-    if(entity.constructor.name === "StoryValue") {
-      this.$guiCol1.append(`<h2 class="storyItem">Value: ${entity.name}</h2>`);
-      $storyItem = $(`<div class="storyItem">
-        ${img}
-        Name: ${entity.name|| ''}<br>
-      </div>`);
-    }
-
-    if(entity.constructor.name === "StoryCharacter") {
-      this.$guiCol1.append(`<h2 class="storyItem">Character: ${entity.name}</h2>`);
-      $storyItem = $(`<div class="storyItem">
-        ${img}
-        Name: ${entity.name || ''}<br>
-        Archetype: ${entity.archetype || ''}<br>
-        Purpose: ${entity.purpose || ''}<br>
-        Motivation: ${entity.motivation || ''}<br>
-        Methodology: ${entity.methodology || ''}<br>
-        Biography: ${entity.biography || ''}<br>
-      </div>`);
-    }
-
+    let $storyItem = this.assembleDetailViewHtml(entity);
     let $link = $(`<a class="edit">edit</a>`);
-    $link.click(function(){
-      control.edit(entity);
-    });
+    $link.click(function(){ control.edit(entity); });
     $storyItem.append($link);
+    let img = entity.image ? `<div class="imgContainer"><img src="${entity.image}"></div>`:"";
+    this.$guiCol1.append(img);
     this.$guiCol1.append($storyItem);
+  }
+
+  assembleDetailViewHtml(entity){
+    let chars;
+    if (entity.characters) {
+      chars = entity.characters.map((s) => s.name).join(", ");
+    }
+
+    let fields = new Map();
+    fields.set("Type", chars  || '');
+    fields.set("Name", entity.name || '');
+    fields.set("Location", entity.location || '');
+    fields.set("Description", entity.description || '');
+    fields.set("Characters", entity.characters || '');
+    if (entity.archetype){
+      fields.set("Archetype", entity.archetype.description || '');
+    }
+    fields.set("Purpose", entity.purpose || '');
+    fields.set("Motivation", entity.motivation || '');
+    fields.set("Methodology", entity.methodology || '');
+    fields.set("Evaluation", entity.evaluation || '');
+    fields.set("Biography", entity.biography || '');
+
+    let $storyItem = $(`<div class="storyItem"></div>`);
+
+    fields.forEach(function(v, k, m){
+      if(v){
+        $storyItem.append(`<div>
+          <div class="fieldLabel">${k}:</div>
+          <div class="fieldValue">${v}</div>
+        </div>`);
+      }
+    });
+
+    return $storyItem;
   }
 
   buildStoryItem (fnNamePart, entity) {
@@ -171,7 +166,6 @@ class  View {
     $item.append(del);
     return $item;
   }
-
 }
 
 
@@ -280,15 +274,15 @@ class ClimaxRestriction {
 class ModalDialogue {
   $htmlBody;
   $overlay;
-  title;
+  name;
 
   fields = [];
   form;
 
   idcounter = 0;
 
-  constructor(title, $htmlBody, model, fieldNames){
-    this.title = title;
+  constructor(name, $htmlBody, model, fieldNames){
+    this.name= name;
     this.$htmlBody = $htmlBody;
     for (let fieldName of fieldNames) {
       let field;
@@ -296,6 +290,7 @@ class ModalDialogue {
       t = Array.isArray(model[fieldName]) ? "array" : t;
       let id = "modalField_" + this.idcounter++;
 
+      console.log(t, model[fieldName]);
       switch(t) {
         case "array": {
           this.fields.push(new CharacterCheckboxes(
@@ -347,7 +342,7 @@ class ModalDialogue {
   assembleOverlay() {
     let self = this;
     let $container = $(`<div class="formContainer">
-      <h2>${this.title}</h2>
+      <h2>${this.name}</h2>
       ${this.form}
     </div>`);
 

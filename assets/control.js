@@ -61,30 +61,26 @@ class Control {
 
     let headline, fields;
     switch(entity.constructor.name){
-      case "StoryCharacter":{
-        headline = "Edit Character";
+      case "Character":{
         fields = ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"];
         break;
       }
       case "Scene":{
-        headline = "Edit Scene";
-        fields = ["image", "title", "description", "conflict", "type", "characters", "location", "throughline" ];
+        fields = ["image", "name", "description", "conflict", "type", "characters", "location", "throughline" ];
         break;
       }
       case "Location":{
-        headline = "Edit Location";
         fields = ["name", "description","image"];
         break;
       }
-      case "StoryValue":{
-        headline = "Edit Value";
+      case "Value":{
         fields = ["name" ];
         break;
       }
     }
 
     let md = new ModalDialogue(
-      headline,
+      `Edit ${entity.constructor.name}`,
       $('body'),
       entity,
       fields
@@ -210,11 +206,11 @@ class AddCharacterCommand extends Command {
     let newArchetype ;
     for (let at in characterArchetypes) {
       if(at === this.payload.archetype) {
-        newArchetype = at;
+        newArchetype = characterArchetypes[at];
         break;
       }
     }
-    this.char = new StoryCharacter(this.payload, newArchetype);
+    this.char = new Character(this.payload, newArchetype);
     model.story.addCharacter(this.char);
   }
 
@@ -227,7 +223,7 @@ class AddValueCommand extends Command {
   value;
 
   do() {
-    this.value = new StoryValue(this.payload);
+    this.value = new Value(this.payload);
     model.story.addStoryValue(this.value);
     for(let s of model.story.getScenes()) {
       s.values.set(this.value, 0.5);
@@ -318,6 +314,7 @@ class AddSceneFromJSONCommand extends Command {
     let type = model.getSceneTypeByName(this.payload.type)
 
     let vmap = new Map();
+
     model.story.values
       .forEach((k, v, m) => vmap.set(v, this.payload.values[v.name] ))
     this.scene = new Scene(
@@ -329,6 +326,7 @@ class AddSceneFromJSONCommand extends Command {
       "",
       vmap);
 
+    console.log("scene created:", this.scene);
     model.story.addScene(this.scene);
   }
 
@@ -396,12 +394,13 @@ function createSceneAt(x, y) {
   }
 
   let vertical = mouseY / view.h;
-  let vo = new Map();
-  model.story.values
-    .forEach((k,v,m) => vo.set(k, k === view.scope ? vertical : 0.5));
+  let vo = {};
+  model.story.values.forEach(function(v,k,m) {
+      vo[k.name] = k === view.scope ? vertical : 0.5;
+    });
 
   control.addScene({
-    title: "",
+    name: "",
     description: "...",
     location: "",
     t: mouseX / view.w,

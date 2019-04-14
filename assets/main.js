@@ -12,7 +12,7 @@ function setup() {
   createCanvas(view.w, view.h);
 
   let data = {
-    title: "Red Riding Hood",
+    name: "Red Riding Hood",
     description: "A food delivery service employee gets eaten by a wolf and reemerges from his belly once the wolf gets killed and cut open.",
     locations:[
       {name: "Forest", image: ""},
@@ -43,7 +43,7 @@ function setup() {
     scenes: [
       {
         type: "INCITING_INCIDENT",
-        title: "Start delivery",
+        name: "Start delivery",
         description: "...",
         t: 0.2,
         location: "Forest",
@@ -57,7 +57,7 @@ function setup() {
       },
       {
         type: "REGULAR_SCENE",
-        title: "A short intermission",
+        name: "A short intermission",
         description: "...",
         t: 0.3,
         location: "Ad Space",
@@ -71,7 +71,7 @@ function setup() {
       },
       {
         type: "REGULAR_SCENE",
-        title: "Monologue of the wolf",
+        name: "Monologue of the wolf",
         description: "...",
         t: 0.4,
         location: "Forest",
@@ -85,7 +85,7 @@ function setup() {
       },
       {
         type: "CENTRAL_POINT",
-        title: "Wolf attacks",
+        name: "Wolf attacks",
         description: "...",
         t: 0.7,
         location: "Forest",
@@ -99,7 +99,7 @@ function setup() {
       },
       {
         type: "CLIMAX",
-        title: "Hunter guts wolf",
+        name: "Hunter guts wolf",
         description: "...",
         t: 0.8,
         location: "Granny's Home",
@@ -115,7 +115,7 @@ function setup() {
   } ;
 
     model.story = new Story();
-    model.story.title = data.title;
+    model.story.name = data.name;
     model.story.description = data.description;
 
     data.values.forEach(function(valueName){
@@ -241,6 +241,5 @@ hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
 });
 
 hotkeys("enter,return", function keyPressed(e, h) {
-  console.log("hit enter");
   $(".save").trigger("click");
 });

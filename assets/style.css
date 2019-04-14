@@ -33,7 +33,7 @@ header {
 }
 h2 {
   font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 300;
   color: #FFFFFF;
   background-color: #AAAAAA;
@@ -47,6 +47,7 @@ canvas {
   margin: 20px;
 }
 a {
+  font-size: 14px;
   text-decoration: none;
   color: #888888;
   transition: 0.5s;
@@ -62,7 +63,7 @@ a:hover {
 }
 .storyItem {
   position: relative;
-  padding: 5px;
+  padding: 7px;
   border: 1px solid #AAA;
   margin-bottom: 10px;
 }
@@ -87,17 +88,21 @@ a:hover {
 .storyItem .edit{
   position: absolute;
   right: 55px;
-  bottom: 5px;
+  bottom: 9px;
   cursor: pointer;
 }
 .storyItem .delete {
   position: absolute;
-  right: 5px;
+  right: 10px;
   cursor: pointer;
 }
-.detailView .storyItem .edit{
-  right: 5px;
+.detailView div.storyItem {
+  line-height: 28px;
 }
+.detailView .storyItem .edit{
+  right: 11px;
+}
+
 
 .overlay {
   position: fixed;
@@ -148,4 +153,12 @@ a:hover {
 }
 .formLabel {
   text-align: right:
+}
+
+.fieldValue,
+.fieldLabel {
+  display: inline-block;
+}
+.fieldLabel {
+  width: 100px;
 }

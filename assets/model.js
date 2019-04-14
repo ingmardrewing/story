@@ -9,25 +9,25 @@ const SceneTypeNames = {
 Object.freeze(SceneTypeNames);
 
 const characterArchetypes = {
-  COMPLEX: Symbol("complex"),
+  COMPLEX: Symbol("Complex"),
 
-  PROTAGONIST: Symbol("protagonist"),
-  SIDEKICK: Symbol("sidekick"),
-  GUARDIAN: Symbol("guardian"),
-  REASON: Symbol("reason"),
+  PROTAGONIST: Symbol("Protagonist"),
+  SIDEKICK: Symbol("Sidekick"),
+  GUARDIAN: Symbol("Guardian"),
+  REASON: Symbol("Reason"),
 
-  ANTAGONIST: Symbol("antagonist"),
-  SCEPTIC: Symbol("sceptic"),
-  CONTAGONIST: Symbol("contagonist"),
-  EMOTIONAL: Symbol("emotional")
+  ANTAGONIST: Symbol("Antagonist"),
+  SCEPTIC: Symbol("Sceptic"),
+  CONTAGONIST: Symbol("Contagonist"),
+  EMOTIONAL: Symbol("Emotional")
 }
 Object.freeze(characterArchetypes);
 
 const throughlines = {
-  OBJECTIVE: Symbol("objective"),
-  RELATIONSHIP: Symbol("relationship"),
-  MAIN_CHARACTER: Symbol("main charachter"),
-  INFLUENCE_CHARACTER: Symbol("influence character")
+  OBJECTIVE: Symbol("Objective"),
+  RELATIONSHIP: Symbol("Relationship"),
+  MAIN_CHARACTER: Symbol("Main Charachter"),
+  INFLUENCE_CHARACTER: Symbol("Influence Character")
 };
 Object.freeze(throughlines);
 
@@ -59,7 +59,7 @@ class Model {
 }
 
 class Story {
-  title;
+  name;
   description;
 
   scenes;
@@ -127,7 +127,7 @@ class Location {
   }
 }
 
-class StoryValue {
+class Value {
   name;
   constructor(name) {
     this.name = name;
@@ -139,7 +139,7 @@ class Scene {
   values = new Map();
   active = false;
 
-  title;
+  name;
   description;
   conflict;
   image;
@@ -159,7 +159,7 @@ class Scene {
             throughline,
             image,
             values) {
-    this.title = params.title;
+    this.name = params.name;
     this.description= params.description;
     this.t = params.t;
     this.location = location;
@@ -191,7 +191,7 @@ class Scene {
   }
 }
 
-class StoryCharacter {
+class Character {
   archetype;
   name;
   purpose;
@@ -210,7 +210,7 @@ class StoryCharacter {
     this.evaluation = params.evaluation;
     this.biography = params.biography;
     this.image = params.image;
-    this.archetype = archetype || [];
+    this.archetype = archetype ;
   }
 }
 
