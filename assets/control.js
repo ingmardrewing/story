@@ -37,15 +37,15 @@ class Control {
   delete(entity) {
     switch(entity.constructor.name) {
       case "Value":{
-        this.commandQueue.addCommand(new DeleteValueCommand(value));
+        this.commandQueue.addCommand(new DeleteValueCommand(entity));
         break;
       }
       case "Character":{
-        this.commandQueue.addCommand(new DeleteCharacterCommand(character));
+        this.commandQueue.addCommand(new DeleteCharacterCommand(entity));
         break;
       }
       case "Location":{
-        this.commandQueue.addCommand(new DeleteLocationCommand({location:location}));
+        this.commandQueue.addCommand(new DeleteLocationCommand(entity));
         break;
       }
     }
@@ -301,11 +301,11 @@ class AddLocationCommand extends Command {
 
 class DeleteLocationCommand extends Command {
   do() {
-    removeItemFromArray(model.story.locations, this.payload.location);
+    removeItemFromArray(model.story.locations, this.payload);
   }
 
   undo() {
-    model.story.addLocation(this.payload.location);
+    model.story.addLocation(this.payload);
   }
 }
 
@@ -335,7 +335,6 @@ class AddSceneFromJSONCommand extends Command {
       "",
       vmap);
 
-    console.log("scene created:", this.scene);
     model.story.addScene(this.scene);
   }
 

@@ -375,7 +375,7 @@ class ModalDialogue {
   }
 }
 
-class Field {
+class FormField {
   model;
   modelFieldName;
   name;
@@ -408,13 +408,13 @@ class Field {
   }
 }
 
-class TextField extends Field {
+class TextField extends FormField {
   assembleInput(){
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
   }
 }
 
-class SceneTypeDropDown extends Field {
+class SceneTypeDropDown extends FormField {
   assembleInput(){
     let select = `<select id="${this.id}" name="${this.id}">`
 
@@ -446,7 +446,7 @@ class SceneTypeDropDown extends Field {
   }
 }
 
-class CharacterCheckboxes extends Field {
+class CharacterCheckboxes extends FormField {
   assembleInput(){
     let html = `<div>`;
     for( let c of model.story.characters ){
