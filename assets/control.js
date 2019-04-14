@@ -6,10 +6,18 @@ class Control {
     this.commandQueue = new CommandQueue();
   }
 
-  selectValue(val){
-    view.scope = val;
-    view.updateDetailView(val);
-    view.update();
+  select(entity){
+    switch(entity.constructor.name){
+      case "Value": {
+        view.scope = entity;
+        view.updateDetailView(entity);
+        view.update();
+        break;
+      }
+      default: {
+        view.updateDetailView(entity);
+      }
+    }
   }
 
   addValue(valueName) {
@@ -26,8 +34,21 @@ class Control {
     md.open();
   }
 
-  deleteValue(value) {
-    this.commandQueue.addCommand(new DeleteValueCommand(value));
+  delete(entity) {
+    switch(entity.constructor.name) {
+      case "Value":{
+        this.commandQueue.addCommand(new DeleteValueCommand(value));
+        break;
+      }
+      case "Character":{
+        this.commandQueue.addCommand(new DeleteCharacterCommand(character));
+        break;
+      }
+      case "Location":{
+        this.commandQueue.addCommand(new DeleteLocationCommand({location:location}));
+        break;
+      }
+    }
   }
 
   addCharacter(params) {
@@ -37,22 +58,13 @@ class Control {
     this.characterCount += 1;
   }
 
-  selectCharacter(character) {
-    view.updateDetailView(character);
-  }
 
-  deleteCharacter(character) {
-    this.commandQueue.addCommand(new DeleteCharacterCommand(character));
-  }
 
   addLocation(locationName) {
     let params = locationName ? {name: locationName} :{name:"New Location"};
     this.commandQueue.addCommand(new AddLocationCommand(params));
   }
 
-  selectLocation(location) {
-    view.updateDetailView(location);
-  }
 
   edit(entity) {
     if(!(entity && entity.constructor)){
@@ -88,9 +100,6 @@ class Control {
     md.open();
   }
 
-  deleteLocation(location){
-    this.commandQueue.addCommand(new DeleteLocationCommand({location:location}));
-  }
 
   addScene (params) {
     this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));

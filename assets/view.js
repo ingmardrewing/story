@@ -77,22 +77,18 @@ class  View {
       this.$guiCol3.empty();
 
       this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach((k,v,m) => this.$guiCol2.append( this.buildStoryItem("Value", v)));
+      model.story.values.forEach((k,v,m) => this.$guiCol2.append( this.buildStoryItem(v)));
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
-        this.$guiCol2.append(
-          this.buildStoryItem("Character", c)
-        );
+        this.$guiCol2.append( this.buildStoryItem(c));
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
       for( let l of model.story.locations) {
-        this.$guiCol3.append(
-          this.buildStoryItem("Location", l)
-        );
+        this.$guiCol3.append( this.buildStoryItem(l));
       }
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
@@ -150,15 +146,15 @@ class  View {
     return $storyItem;
   }
 
-  buildStoryItem (fnNamePart, entity) {
+  buildStoryItem (entity) {
     let select = $(`<a class="choose">${entity.name}</a>`)
-    select.click(function(){ control["select"+fnNamePart](entity); })
+    select.click(function(){ control["select"](entity); })
 
     let edit = $(`<a class="edit">edit</a>`);
     edit.click(function(){ control.edit(entity); })
 
     let del = $(`<a class="delete">delete</a>`);
-    del.click(function(){ control["delete"+fnNamePart](entity); })
+    del.click(function(){ control["delete"](entity); })
 
     let $item = $(`<div class="storyItem"></div>`);
     $item.append(select);
