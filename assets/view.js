@@ -463,23 +463,22 @@ class DropDownNG extends FormFieldNG {
     return select;
   }
 
-  save() {
-    /*
-    let sym;
-    let selectedValue = $('#' + this.id).val();
-    this.dataField.characteristic.forEach(function(v, k, m){
-      if(currentsym.description === selectedValue){
-        sym = v;
-        break;
+  findSelectedByString(name) {
+    for ( let char in this.dataField.characteristic) {
+      let sym = this.dataField.characteristic[char];
+      if( name === sym.description ){
+        return sym;
       }
-    });
-    control.removeSceneTypeFromScenes(sym);
+    }
+  }
+
+  save() {
+    let selection = this.findSelectedByString($('#' + this.id).val());
+    control.removeSceneTypeFromScenes(selection);
     control.updateModelField(
-      this.model,
-      this.modelFieldName,
-      sym
-    );
-    */
+      this.entity,
+      this.dataField,
+      selection);
   }
 }
 

@@ -80,7 +80,6 @@ class Control {
       }
     }
 
-    console.log(entity.fields);
     let md = new ModalDialogue(
       `Edit ${entity.constructor.name}`,
       $('body'),
@@ -366,14 +365,27 @@ class RemoveSceneTypeCommand extends Command {
 
 class UpdateModelFieldCommand extends Command {
   do(){
-    let pl = this.payload;
-    pl.oldValue = pl.model[pl.fieldName]
-    pl.model[pl.fieldName] = pl.newValue;
+    if (this.payload.model instanceof Character){
+      let pl = this.payload;
+      pl.oldValue = pl.model.fields.get(pl.fieldName);
+      pl.model.fields.set(pl.fieldName, pl.newValue);
+    }
+    else{
+      let pl = this.payload;
+      pl.oldValue = pl.model[pl.fieldName]
+      pl.model[pl.fieldName] = pl.newValue;
+    }
   }
 
   undo() {
-    let pl = this.payload;
-    pl.model[pl.fieldName] = pl.oldValue;
+    if (this.payload.model instanceof Character){
+      let pl = this.payload;
+      pl.model.fields.set(pl.fieldName, pl.oldValue);
+    }
+    else{
+      let pl = this.payload;
+      pl.model[pl.fieldName] = pl.oldValue;
+    }
   }
 }
 
