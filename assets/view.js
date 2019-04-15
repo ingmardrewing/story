@@ -194,7 +194,7 @@ class SceneSprite {
   }
 
   readDestinationFromModel() {
-    let y = this.scene.values ? this.scene.values.get(view.scope) :0.5;
+    let y =  this.scene.values.get(view.scope);
     this.setDestination(
       this.scene.t * view.w,
       y * view.h
@@ -202,7 +202,7 @@ class SceneSprite {
   }
 
   syncPosition() {
-    this.setPosition( this.destX, this.destY );
+    this.setPosition(this.destX, this.destY);
   }
 
   approxPosition() {

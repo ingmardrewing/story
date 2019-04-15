@@ -164,18 +164,20 @@ class Story {
   }
 }
 
-class Location {
+class Location extends FieldContainer {
   constructor (params) {
+    super();
     this.id = params.id;
-    this.name = params.name;
-    this.image = params.image;
-    this.description = params.description;
+    this.set("name", params.name);
+    this.set("image", params.image);
+    this.set("description", params.description);
   }
 }
 
-class Value {
+class Value extends FieldContainer {
   constructor(name) {
-    this.name = name;
+    super();
+    this.set("name", name);
   }
 }
 
@@ -239,4 +241,3 @@ class Character extends FieldContainer {
     this.set("biography", params.biography);
   }
 }
-

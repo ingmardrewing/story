@@ -334,8 +334,13 @@ class AddSceneFromJSONCommand extends Command {
 
     let vmap = new Map();
 
+    let self = this;
+
     model.story.values
-      .forEach((k, v, m) => vmap.set(v, this.payload.values[v.name] ))
+      .forEach(function(k, v){ 
+        vmap.set(v, self.payload.values[v.get("name")] )
+      });
+
     this.scene = new Scene(
       this.payload,
       characters,
@@ -388,7 +393,6 @@ class UpdateModelFieldCommand extends Command {
   do(){
     if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
       let pl = this.payload;
-      console.log(pl.fieldName, pl.newValue);
       pl.oldValue = pl.model.fields.get(pl.fieldName);
       pl.model.fields.set(pl.fieldName, pl.newValue);
     }
@@ -428,8 +432,8 @@ function createSceneAt(x, y) {
   let vertical = mouseY / view.h;
   let vo = {};
   model.story.values.forEach(function(v,k,m) {
-      vo[k.name] = k === view.scope ? vertical : 0.5;
-    });
+    vo[k.get("name")] = k === view.scope ? vertical : 0.5;
+  });
 
   control.addScene({
     name: "",

@@ -116,7 +116,6 @@ function setup() {
 
     model.story.name = data.name;
     model.story.description = data.description;
-
     model.initFields();
 
     data.values.forEach(function(valueName){
