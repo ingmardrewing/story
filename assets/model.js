@@ -75,7 +75,7 @@ class Model {
     this.fields.set("type", new SingleValueList("type", "Scenetype", "The type of the scene as one of 'Inciting Incident', 'Plot Point I', 'Central Point', 'Plot Point II', 'Climax'", SceneTypeNames));
     this.fields.set("characters", new MultipleValueList("characters", "Characters", "The characters involved in the scene", this.story.characters));
     this.fields.set("location", new SingleValueList("location", "Location", "The location where a scenes takes place", this.story.locations));
-    this.fields.set("throughline", new SingleValueList("throughline", "Thgroughline", "The throughline of the scene", throughlines));
+    this.fields.set("throughline", new SingleValueList("throughline", "Throughline", "The throughline of the scene", throughlines));
 
     this.fields.set("archetype", new SingleValueList("archetype", "Archetype", "Character archetype", characterArchetypes));
     this.fields.set("purpose", new LongText("purpose", "Purpose", "The character's purpose"));

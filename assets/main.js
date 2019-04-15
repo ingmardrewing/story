@@ -118,6 +118,10 @@ function setup() {
     model.story.description = data.description;
     model.initFields();
 
+    data.locations.forEach(function(location){
+      control.addLocation(location.name);
+    });
+
     data.values.forEach(function(valueName){
       control.addValue(valueName);
     });

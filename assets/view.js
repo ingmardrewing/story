@@ -139,7 +139,9 @@ class  View {
     let $storyItem = $(`<div class="storyItem"></div>`);
     entity.fields.forEach(function(v, k){
       let txt = "symbol" === typeof v ? v.description: 
-                v === undefined ? "" : v;
+                      v === undefined ? "" :
+                "object" === typeof v ? v.name : v;
+      console.log(v);
       $storyItem.append(`<div>
           <div class="fieldLabel">${k.label}:</div>
           <div class="fieldValue">${txt}</div>
@@ -431,6 +433,7 @@ class TextAreaNG extends FormFieldNG {
 
 class DropDownNG extends FormFieldNG {
   assembleInput(){
+    console.log(this.dataField);
     let curVal = this.entity.fields.get(this.dataField);
     if ( "symbol" === typeof curVal ) {
       this.isSymbol = true;
@@ -459,7 +462,7 @@ class DropDownNG extends FormFieldNG {
       if(curVal){
         selected = curVal.id === v.id ? ' selected="selected"' : '';
       }
-      options += `<option value="${v.id}"${selected}>${v.name}</option>`
+      options += `<option value="${v.id}"${selected}>${v.get("name")}</option>`
     });
 
     return options;
