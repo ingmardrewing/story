@@ -1,6 +1,7 @@
 class Control {
   constructor() {
     this.characterCount = 0;
+    this.locationCount = 0;
     this.commandQueue = new CommandQueue();
   }
 
@@ -46,10 +47,9 @@ class Control {
     this.characterCount += 1;
   }
 
-
-
   addLocation(locationName) {
     let params = locationName ? {name: locationName} :{name:"New Location"};
+    params.id = "location_" + this.locationCount++;
     this.commandQueue.addCommand(new AddLocationCommand(params));
   }
 
@@ -133,6 +133,7 @@ class Control {
     view.update();
   }
 
+  // TODO: Remove after transition to new fieldtypes
   findSymbolSiblings(sym){
     for( let s in SceneTypeNames ) {
       if (sym === SceneTypeNames[s]){
@@ -286,7 +287,7 @@ class AddLocationCommand extends Command {
   }
 
   undo() {
-    removeItemFromArray(model.story.locations, this.location);
+    model.story.locations.delete(this.location);
   }
 }
 
@@ -298,6 +299,25 @@ class DeleteLocationCommand extends Command {
   undo() {
     model.story.addLocation(this.payload);
   }
+}
+
+function findSymbolByName(description){
+  for( let s in SceneTypeNames ) {
+    if (description === SceneTypeNames[s].description){
+      return SceneTypeNames[s];
+    }
+  }
+  for( let s in characterArchetypes) {
+    if (description === characterArchetypes[s].description){
+      return characterArchetypes[s];
+    }
+  }
+  for( let s in throughlines) {
+    if (description === throughlines[s].description){
+      return throughlines[s];
+    }
+  }
+  return {};
 }
 
 class AddSceneFromJSONCommand extends Command {
@@ -321,7 +341,7 @@ class AddSceneFromJSONCommand extends Command {
       characters,
       loc,
       type,
-      {name: "througline"},
+      findSymbolByName(this.payload.throughline),
       "",
       vmap);
 
@@ -366,8 +386,9 @@ class RemoveSceneTypeCommand extends Command {
 
 class UpdateModelFieldCommand extends Command {
   do(){
-    if (this.payload.model instanceof Character){
+    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
       let pl = this.payload;
+      console.log(pl.fieldName, pl.newValue);
       pl.oldValue = pl.model.fields.get(pl.fieldName);
       pl.model.fields.set(pl.fieldName, pl.newValue);
     }
@@ -379,7 +400,7 @@ class UpdateModelFieldCommand extends Command {
   }
 
   undo() {
-    if (this.payload.model instanceof Character){
+    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
       let pl = this.payload;
       pl.model.fields.set(pl.fieldName, pl.oldValue);
     }
@@ -420,5 +441,3 @@ function createSceneAt(x, y) {
     characters: []
   })
 }
-
-

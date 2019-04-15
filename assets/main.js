@@ -47,7 +47,7 @@ function setup() {
         description: "...",
         t: 0.2,
         location: "Forest",
-        throughline: "MAIN_CHARACTER",
+        throughline: "Main Character",
         values: {
           "Suspense": 0.3,
           "Life": 0.6
@@ -61,7 +61,7 @@ function setup() {
         description: "...",
         t: 0.3,
         location: "Ad Space",
-        throughline: "OBJECTIVE",
+        throughline: "Objective",
         values: {
           "Suspense": 0.7,
           "Life": 0.4
@@ -75,7 +75,7 @@ function setup() {
         description: "...",
         t: 0.4,
         location: "Forest",
-        throughline: "INFLUENCE_CHARACTER",
+        throughline: "Influence Character",
         values: {
           "Suspense": 0.4,
           "Life": 0.7
@@ -89,7 +89,7 @@ function setup() {
         description: "...",
         t: 0.7,
         location: "Forest",
-        throughline: "RELATIONSHIP",
+        throughline: "Relationship",
         values: {
           "Suspense": 0.7,
           "Life": 0.3
@@ -103,7 +103,7 @@ function setup() {
         description: "...",
         t: 0.8,
         location: "Granny's Home",
-        throughline: "RELATIONSHIP",
+        throughline: "Relationship",
         values: {
           "Suspense": 0.4,
           "Life": 0.7
@@ -114,9 +114,10 @@ function setup() {
     ],
   } ;
 
-    model.story = new Story();
     model.story.name = data.name;
     model.story.description = data.description;
+
+    model.initFields();
 
     data.values.forEach(function(valueName){
       control.addValue(valueName);
@@ -183,7 +184,10 @@ function draw() {
     if (s.scene.type !== SceneTypeNames.REGULAR_SCENE) {
       strokeWeight(1);
       fill(153);
-      text(s.scene.type.description, Math.round(s.x), Math.round(s.y -20));
+      let sct = s.scene.get("type");
+      if (sct !== SceneTypeNames.REGULAR_SCENE ) {
+        text(sct.description, Math.round(s.x), Math.round(s.y -20));
+      }
     }
   }
 }

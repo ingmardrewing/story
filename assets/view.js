@@ -97,23 +97,22 @@ class  View {
 
   updateGui() {
     if(this.$guiContainer) {
+      // Col 2
       this.$guiCol2.empty();
-      this.$guiCol3.empty();
-
-      this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach((k,v,m) => this.$guiCol2.append( this.buildStoryItem(v)));
-      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
-
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
         this.$guiCol2.append( this.buildStoryItem(c));
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
+      // Col 3
+      this.$guiCol3.empty();
+      this.$guiCol3.append(`<h2 class="storyItem">Story Values</h2>`);
+      model.story.values.forEach((k,v,m) => this.$guiCol3.append( this.buildStoryItem(v)));
+      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
+
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
-      for( let l of model.story.locations) {
-        this.$guiCol3.append( this.buildStoryItem(l));
-      }
+      model.story.locations.forEach((k,v,m) => this.$guiCol3.append( this.buildStoryItem(k)));
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
@@ -123,6 +122,7 @@ class  View {
       return ;
     }
     this.detailViewEntity = entity;
+
     this.$guiCol1.empty();
     this.$guiCol1.append(`<h2 class="storyItem">${entity.constructor.name}: ${entity.name}</h2>`);
 
@@ -136,42 +136,20 @@ class  View {
   }
 
   assembleDetailViewHtml(entity){
-    let chars;
-    if (entity.characters) {
-      chars = entity.characters.map((s) => s.name).join(", ");
-    }
-
-    let fields = new Map();
-    fields.set("Type", chars  || '');
-    fields.set("Name", entity.name || '');
-    fields.set("Location", entity.location || '');
-    fields.set("Description", entity.description || '');
-    fields.set("Characters", entity.characters || '');
-    if (entity.archetype){
-      fields.set("Archetype", entity.archetype.description || '');
-    }
-    fields.set("Purpose", entity.purpose || '');
-    fields.set("Motivation", entity.motivation || '');
-    fields.set("Methodology", entity.methodology || '');
-    fields.set("Evaluation", entity.evaluation || '');
-    fields.set("Biography", entity.biography || '');
-
     let $storyItem = $(`<div class="storyItem"></div>`);
-
-    fields.forEach(function(v, k, m){
-      if(v){
-        $storyItem.append(`<div>
-          <div class="fieldLabel">${k}:</div>
-          <div class="fieldValue">${v}</div>
+    entity.fields.forEach(function(v, k){
+      let txt = "symbol" === typeof v ? v.description: 
+                v === undefined ? "" : v;
+      $storyItem.append(`<div>
+          <div class="fieldLabel">${k.label}:</div>
+          <div class="fieldValue">${txt}</div>
         </div>`);
-      }
     });
-
     return $storyItem;
   }
 
   buildStoryItem (entity) {
-    let select = $(`<a class="choose">${entity.name}</a>`)
+    let select = $(`<a class="choose">${entity.name || entity.get("name")}</a>`)
     select.click(function(){ control["select"](entity); })
 
     let edit = $(`<a class="edit">edit</a>`);
@@ -187,7 +165,6 @@ class  View {
     return $item;
   }
 }
-
 
 class SceneSprite {
   constructor(scene, restriction){
@@ -309,7 +286,7 @@ class ModalDialogue {
     this.idcounter = 0;
     this.name= name;
     this.$htmlBody = $htmlBody;
-    if (entity.constructor.name == "Character") {
+    if (entity.constructor.name == "Character" || entity.constructor.name == "Scene") {
       let formFields = this.fields;
       let c = this.idcounter;
       entity.fields.forEach(function(v, fieldType, m){
@@ -448,35 +425,67 @@ class TextFieldNG extends FormFieldNG {
 class TextAreaNG extends FormFieldNG {
   assembleInput(){
     let val = this.entity.fields.get(this.dataField) || '';
-    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text"/>${val}</textare>`;
+    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text">${val}</textarea>`;
   }
 }
 
 class DropDownNG extends FormFieldNG {
   assembleInput(){
     let curVal = this.entity.fields.get(this.dataField);
-    let select = `<select id="${this.id}" name="${this.id}">`
+    if ( "symbol" === typeof curVal ) {
+      this.isSymbol = true;
+      return `<select id="${this.id}" name="${this.id}">${this.symOptions()}</select>`
+    }
+    return `<select id="${this.id}" name="${this.id}">${this.options()}</select>`
+  }
+
+  symOptions() {
+    let curVal = this.entity.fields.get(this.dataField);
+    let options = "";
     for ( let char in this.dataField.characteristic) {
       let sym = this.dataField.characteristic[char];
       let selected = curVal === sym ? ' selected="selected"' : '';
-      select += `<option value="${sym.description}"${selected}>${sym.description}</option>`
+      options += `<option value="${sym.description}"${selected}>${sym.description}</option>`
     }
-    select +="</select>"
-    return select;
+    return options;
   }
 
-  findSelectedByString(name) {
-    for ( let char in this.dataField.characteristic) {
-      let sym = this.dataField.characteristic[char];
-      if( name === sym.description ){
-        return sym;
+  options() {
+    let curVal = this.entity.fields.get(this.dataField);
+    let options = "";
+
+    this.dataField.characteristic.forEach(function(v, k){
+      let selected = '';
+      if(curVal){
+        selected = curVal.id === v.id ? ' selected="selected"' : '';
+      }
+      options += `<option value="${v.id}"${selected}>${v.name}</option>`
+    });
+
+    return options;
+  }
+
+  findSelected() {
+    let identifier = $('#' + this.id).val();
+    if( this.isSymbol ) {
+      for (let char in this.dataField.characteristic) {
+        let sym = this.dataField.characteristic[char];
+        if ( identifier === sym.description ){
+          return sym;
+        }
       }
     }
+    let res;
+    this.dataField.characteristic.forEach(function(v){
+      if(v.id === identifier) {
+        res = v;
+      }
+    });
+    return res;
   }
 
   save() {
-    let selection = this.findSelectedByString($('#' + this.id).val());
-    control.removeSceneTypeFromScenes(selection);
+    let selection = this.findSelected();
     control.updateModelField(
       this.entity,
       this.dataField,
@@ -487,29 +496,29 @@ class DropDownNG extends FormFieldNG {
 class CheckboxesNG extends FormFieldNG {
   assembleInput(){
     let html = `<div>`;
-    let preselected = this.entity.fields(this.dataField);
+    let preselected = this.entity.fields.get(this.dataField);
+
     this.dataField.characteristic.forEach(function(v, k, m){
       let checked = preselected.includes(v) ? ` checked="checked"` : '';
-      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.name}</label></div>`
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.get("name")}</label></div>`
     });
     html += `</div>`;
+
     return html;
   }
 
   save () {
-    /*
     let newCharacters = [];
-    for( let c of model.story.characters ){
-      if($('#' + c.id).prop("checked")){
-        newCharacters.push(c);
+    this.dataField.characteristic.forEach(function(v, k, m){
+      if($('#' + v.id).prop("checked")){
+        newCharacters.push(v);
       }
-    }
+    });
     control.updateModelField(
-      this.model,
-      this.modelFieldName,
+      this.entity,
+      this.dataField,
       newCharacters
     );
-    */
   }
 }
 
@@ -545,8 +554,6 @@ class TextField extends FormField {
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
   }
 }
-
-
 
 class SceneTypeDropDown extends FormField {
   assembleInput(){
@@ -585,8 +592,7 @@ class CharacterCheckboxes extends FormField {
     let html = `<div>`;
     for( let c of model.story.characters ){
       let checked = this.model.characters.includes(c) ? ` checked="checked"` : "";
-      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.name}</label></div>`
-      c.name
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.get("name")}</label></div>`
     }
     html += `</div>`;
     return html;

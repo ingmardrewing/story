@@ -26,10 +26,24 @@ Object.freeze(characterArchetypes);
 const throughlines = {
   OBJECTIVE: Symbol("Objective"),
   RELATIONSHIP: Symbol("Relationship"),
-  MAIN_CHARACTER: Symbol("Main Charachter"),
+  MAIN_CHARACTER: Symbol("Main Character"),
   INFLUENCE_CHARACTER: Symbol("Influence Character")
 };
 Object.freeze(throughlines);
+
+class FieldContainer {
+  constructor() {
+    this.fields = new Map();
+  }
+
+  get(fieldName){
+    return this.fields.get(model.fields.get(fieldName));
+  }
+
+  set(fieldName, value) {
+    this.fields.set(model.fields.get(fieldName), value);
+  }
+}
 
 class Field {
   constructor(name, label, description, characteristic) {
@@ -100,7 +114,7 @@ class Story {
     this.scenes = [];
     this.characters = [];
     this.values = new Map();
-    this.locations = [];
+    this.locations = new Map();
   }
 
   addStoryValue(storyValue) {
@@ -112,11 +126,17 @@ class Story {
   }
 
   addLocation(location) {
-    this.locations.push(location);
+    this.locations.set(location.id, location);
   }
 
   getLocationByName(locName){
-    return this.lookUp(this.locations, locName);
+    let loc;
+    this.locations.forEach(function(v){
+      if(v.name === locName){
+        loc = v;
+      }
+    });
+    return loc;
   }
 
   addCharacter(char) {
@@ -146,6 +166,7 @@ class Story {
 
 class Location {
   constructor (params) {
+    this.id = params.id;
     this.name = params.name;
     this.image = params.image;
     this.description = params.description;
@@ -158,7 +179,7 @@ class Value {
   }
 }
 
-class Scene {
+class Scene extends FieldContainer{
   constructor(params,
             characters,
             location,
@@ -166,22 +187,20 @@ class Scene {
             throughline,
             image,
             values) {
+    super();
 
     this.active = false;
-    this.name = params.name;
-    this.description= params.description;
     this.t = params.t || 0.5;
-    this.location = location;
-    this.characters = characters || [];
-    this.throughline = params.throughline;
     this.values = values || new Map();
-    this.type = type || SceneTypeNames.REGULAR_SCENE;;
-    this.image = image;
 
-    this.fields = new Map();
-    this.fields.set(model.fields.get("name"), params.name);
-    this.fields.set(model.fields.get("description"), params.description);
-    // TODO: initialize typed fields ...
+    this.set("name", params.name);
+    this.set("description", params.description);
+    this.set("conflict", params.description);
+    this.set("location", location );
+    this.set("characters", characters || []);
+    this.set("throughline", throughline || throughlines.OBJECTIVE);
+    this.set("type", type || SceneTypeNames.REGULAR_SCENE);
+    this.set("image", image || "");
   }
 
   addCharacter(char) {
@@ -205,28 +224,19 @@ class Scene {
   }
 }
 
-class Character {
+class Character extends FieldContainer {
   constructor (params, archetype) {
+    super();
     this.id = params.id;
-    this.name = params.name;
-    this.purpose = params.purpose;
-    this.motivation = params.motivation;
-    this.methodology= params.methodology;
-    this.evaluation = params.evaluation;
-    this.biography = params.biography;
-    this.image = params.image;
-    this.archetype = archetype ;
-
-    this.fields = new Map();
-    this.fields.set(model.fields.get("image"), params.image);
-    this.fields.set(model.fields.get("archetype"), archetype);
-    this.fields.set(model.fields.get("name"), params.name);
-    this.fields.set(model.fields.get("description"), params.description);
-    this.fields.set(model.fields.get("purpose"), params.purpose);
-    this.fields.set(model.fields.get("motivation"), params.motivation);
-    this.fields.set(model.fields.get("methodology"), params.methodology);
-    this.fields.set(model.fields.get("evaluation"), params.evaluation);
-    this.fields.set(model.fields.get("biography"), params.biography);
+    this.set("image", params.image);
+    this.set("archetype", archetype);
+    this.set("name", params.name);
+    this.set("description", params.description);
+    this.set("purpose", params.purpose);
+    this.set("motivation", params.motivation);
+    this.set("methodology", params.methodology);
+    this.set("evaluation", params.evaluation);
+    this.set("biography", params.biography);
   }
 }
 
