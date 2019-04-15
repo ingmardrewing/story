@@ -513,16 +513,8 @@ class CheckboxesNG extends FormFieldNG {
   }
 }
 
-
-
 class FormField {
-  model;
-  modelFieldName;
-  name;
-  value;
-  id;
-
-  constructor(id, name, value, model, modelFieldname) {
+    constructor(id, name, value, model, modelFieldname) {
     this.id = id;
     this.name = name;
     this.value = value;
