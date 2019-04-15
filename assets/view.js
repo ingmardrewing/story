@@ -38,19 +38,20 @@ class FormFactory {
 }
 
 class  View {
-  scope ;
-  sceneRadius = 15;
-  sceneSprites = [];
-  $guiContainer;
-  $guiCol1;
-  $guiCol2;
-  $guiCol3;
-  $guiCol4;
+  constructor(){
+    this.sceneRadius = 15;
+    this.sceneSprites = [];
+    this.$guiContainer = undefined;
+    this.$guiCol1 = undefined;
+    this.$guiCol2 = undefined;
+    this.$guiCol3 = undefined;
+    this.$guiCol4 = undefined;
 
-  w = 1200;
-  h = 300;
+    this.w = 1200;
+    this.h = 300;
 
-  detailViewEntity;
+    this.detailViewEntity = undefined;
+  }
 
   setScope(scope) {
     this.scope = scope;
@@ -189,18 +190,16 @@ class  View {
 
 
 class SceneSprite {
-  x = 0;
-  y = 0;
-
-  destX = 0;
-  destY = 0;
-
-  dragged = false;
-  scene;
-
   constructor(scene, restriction){
     this.scene = scene;
     this.restriction = restriction;
+    this.x = 0;
+    this.y = 0;
+
+    this.destX = 0;
+    this.destY = 0;
+
+    this.dragged = false;
   }
 
   setPosition(x, y) {
@@ -261,46 +260,53 @@ function getRestriction(sceneType) {
 }
 
 class RegularRestriction {
-  lowerLimit = thres.START;
-  upperLimit = thres.END;
+  constructor(){
+    this.lowerLimit = thres.START;
+    this.upperLimit = thres.END;
+  }
 }
 
 class IncitingIncidentRestriction {
-  lowerLimit = thres.START;
-  upperLimit = thres.PP1;
+  constructor() {
+    this.lowerLimit = thres.START;
+    this.upperLimit = thres.PP1;
+  }
 }
 
 class PlotPoint1Restriction {
-  lowerLimit = thres.PP1;
-  upperLimit = thres.PP1;
+  constructor() {
+    this.lowerLimit = thres.PP1;
+    this.upperLimit = thres.PP1;
+  }
 }
 
 class CentralPointRestriction {
-  lowerLimit = thres.CP;
-  upperLimit = thres.CP;
+  constructor() {
+    this.lowerLimit = thres.CP;
+    this.upperLimit = thres.CP;
+  }
 }
 
 class PlotPoint2Restriction {
-  lowerLimit = thres.PP2;
-  upperLimit = thres.PP2;
+  constructor() {
+    this.lowerLimit = thres.PP2;
+    this.upperLimit = thres.PP2;
+  }
 }
 
 class ClimaxRestriction {
-  lowerLimit = thres.PP2;
-  upperLimit = thres.END;
+  constructor() {
+    this.lowerLimit = thres.PP2;
+    this.upperLimit = thres.END;
+  }
 }
 
 class ModalDialogue {
-  $htmlBody;
-  $overlay;
-  name;
-
-  fields = [];
-  form;
-
-  idcounter = 0;
-
   constructor(name, $htmlBody, entity, fieldNames){
+    this.overlay = "";
+    this.form = "";
+    this.fields = [];
+    this.idcounter = 0;
     this.name= name;
     this.$htmlBody = $htmlBody;
     if (entity.constructor.name == "Character") {
@@ -409,10 +415,6 @@ class ModalDialogue {
 }
 
 class FormFieldNG {
-  id;
-  dataField;
-  entity;
-
   constructor(id, dataField, entity){
     this.id = id;
     this.dataField = dataField;

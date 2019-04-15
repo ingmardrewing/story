@@ -32,11 +32,6 @@ const throughlines = {
 Object.freeze(throughlines);
 
 class Field {
-  name;
-  label;
-  description;
-  characteristic;
-
   constructor(name, label, description, characteristic) {
     this.name = name;
     this.label = label;
@@ -51,9 +46,6 @@ class SingleValueList extends Field {}
 class MultipleValueList extends Field {}
 
 class Model {
-  story;
-  fields;
-
   constructor() {
     this.story = new Story();
     this.initFields();
@@ -101,19 +93,14 @@ class Model {
 }
 
 class Story {
-  name;
-  description;
-
-  scenes;
-  characters;
-  values;
-  locations;
-
   constructor(){
-    this.locations = [];
+    this.name = "";
+    this.description = "";
+
     this.scenes = [];
-    this.values = new Map();
     this.characters = [];
+    this.values = new Map();
+    this.locations = [];
   }
 
   addStoryValue(storyValue) {
@@ -158,10 +145,6 @@ class Story {
 }
 
 class Location {
-  name;
-  image;
-  description;
-
   constructor (params) {
     this.name = params.name;
     this.image = params.image;
@@ -170,32 +153,12 @@ class Location {
 }
 
 class Value {
-  name;
   constructor(name) {
     this.name = name;
   }
 }
 
 class Scene {
-  t;
-  values = new Map();
-  active = false;
-
-  fields = new Map();
-
-  name;
-  description;
-  conflict;
-  image;
-
-  location ;
-  throughline;
-  characters = [];
-
-  type = SceneTypeNames.REGULAR_SCENE;
-
-  sprite;
-
   constructor(params,
             characters,
             location,
@@ -203,17 +166,22 @@ class Scene {
             throughline,
             image,
             values) {
-    this.fields.set()
 
+    this.active = false;
     this.name = params.name;
     this.description= params.description;
-    this.t = params.t;
+    this.t = params.t || 0.5;
     this.location = location;
-    this.characters = characters;
+    this.characters = characters || [];
     this.throughline = params.throughline;
-    this.values = values;
-    this.type = type;
+    this.values = values || new Map();
+    this.type = type || SceneTypeNames.REGULAR_SCENE;;
     this.image = image;
+
+    this.fields = new Map();
+    this.fields.set(model.fields.get("name"), params.name);
+    this.fields.set(model.fields.get("description"), params.description);
+    // TODO: initialize typed fields ...
   }
 
   addCharacter(char) {
@@ -238,17 +206,6 @@ class Scene {
 }
 
 class Character {
-  archetype;
-  name;
-  purpose;
-  evaluation;
-  methodology;
-  motivation;
-  biogaphy;
-  image;
-
-  fields = new Map();
-
   constructor (params, archetype) {
     this.id = params.id;
     this.name = params.name;
@@ -260,6 +217,7 @@ class Character {
     this.image = params.image;
     this.archetype = archetype ;
 
+    this.fields = new Map();
     this.fields.set(model.fields.get("image"), params.image);
     this.fields.set(model.fields.get("archetype"), archetype);
     this.fields.set(model.fields.get("name"), params.name);

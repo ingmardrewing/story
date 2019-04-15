@@ -1,8 +1,6 @@
 class Control {
-  commandQueue;
-  characterCount = 0;
-
   constructor() {
+    this.characterCount = 0;
     this.commandQueue = new CommandQueue();
   }
 
@@ -156,10 +154,8 @@ class Control {
 }
 
 class CommandQueue {
-  history = [];
-  queue = [];
-
   addCommand(command) {
+    this.history = [];
     this.queue = [];
     this.do(command);
     view.updateSceneSprites();
@@ -190,15 +186,16 @@ class CommandQueue {
 }
 
 class Command {
-  payload;
-
   constructor(payload){
     this.payload = payload;
   }
 }
 
 class AddCharacterCommand extends Command {
-  char;
+  constructor(payload) {
+    super(payload);
+    this.char = undefined;
+  }
 
   do(){
     let newArchetype ;
@@ -218,7 +215,10 @@ class AddCharacterCommand extends Command {
 }
 
 class AddValueCommand extends Command {
-  value;
+  constructor(payload) {
+    super(payload);
+    this.value = undefined;
+  }
 
   do() {
     this.value = new Value(this.payload);
@@ -237,7 +237,11 @@ class AddValueCommand extends Command {
 }
 
 class DeleteCharacterCommand extends Command {
-  scenes;
+  constructor(payload) {
+    super(payload);
+    this.scenes = undefined;
+  }
+
   do () {
     this.scenes = [];
 
@@ -258,7 +262,6 @@ class DeleteCharacterCommand extends Command {
   }
 }
 class DeleteValueCommand extends Command {
-  s2vmap;
   do () {
     this.s2vmap = new Map();
     model.story.values.delete(this.payload);
@@ -277,7 +280,6 @@ class DeleteValueCommand extends Command {
 }
 
 class AddLocationCommand extends Command {
-  loc;
   do() {
     this.loc = new Location(this.payload);
     model.story.addLocation(this.loc);
@@ -299,7 +301,6 @@ class DeleteLocationCommand extends Command {
 }
 
 class AddSceneFromJSONCommand extends Command {
-  scene;
   do() {
     let characters = [];
     for (let charName in this.payload.characters) {
