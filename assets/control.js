@@ -87,11 +87,9 @@ class Control {
     md.open();
   }
 
-
   addScene (params) {
     this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));
   }
-
 
   moveScene(scene, x, y) {
     this.commandQueue.addCommand(new MoveSceneCommand({
@@ -131,26 +129,6 @@ class Control {
     this.commandQueue.redo();
     view.updateSceneSprites();
     view.update();
-  }
-
-  // TODO: Remove after transition to new fieldtypes
-  findSymbolSiblings(sym){
-    for( let s in SceneTypeNames ) {
-      if (sym === SceneTypeNames[s]){
-        return SceneTypeNames;
-      }
-    }
-    for( let s in characterArchetypes) {
-      if (sym === characterArchetypes[s]){
-        return characterArchetypes;
-      }
-    }
-    for( let s in throughlines) {
-      if (sym === throughlines[s]){
-        return throughlines;
-      }
-    }
-    return {};
   }
 }
 
@@ -200,9 +178,9 @@ class AddCharacterCommand extends Command {
 
   do(){
     let newArchetype ;
-    for (let at in characterArchetypes) {
-      if(at === this.payload.archetype) {
-        newArchetype = characterArchetypes[at];
+    for (let archetype of model.characterArchetypes) {
+      if(archetype.name === this.payload.archetype) {
+        newArchetype = archetype;
         break;
       }
     }
@@ -301,20 +279,20 @@ class DeleteLocationCommand extends Command {
   }
 }
 
-function findSymbolByName(description){
-  for( let s in SceneTypeNames ) {
-    if (description === SceneTypeNames[s].description){
-      return SceneTypeNames[s];
+function findSymbolByName(name){
+  for( let type in model.sceneTypes) {
+    if (name === type.name){
+      return type;
     }
   }
-  for( let s in characterArchetypes) {
-    if (description === characterArchetypes[s].description){
-      return characterArchetypes[s];
+  for( let archetype in model.characterArchetypes) {
+    if (name === archetype.name){
+      return archetype;
     }
   }
-  for( let s in throughlines) {
-    if (description === throughlines[s].description){
-      return throughlines[s];
+  for( let throughline in model.throughlines) {
+    if (name === throughline.name){
+      return throughline;
     }
   }
   return {};
@@ -337,7 +315,7 @@ class AddSceneFromJSONCommand extends Command {
     let self = this;
 
     model.story.values
-      .forEach(function(k, v){ 
+      .forEach(function(k, v){
         vmap.set(v, self.payload.values[v.get("name")] )
       });
 
@@ -381,7 +359,7 @@ class MoveSceneCommand extends Command {
 class RemoveSceneTypeCommand extends Command {
   do() {
     this.payload.oldSceneType = this.payload.scene.type;
-    this.payload.scene.type = SceneTypeNames.REGULAR_SCENE;
+    this.payload.scene.type = model.sceneTypes[0];
   }
 
   undo() {

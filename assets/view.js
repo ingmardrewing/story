@@ -60,7 +60,7 @@ class  View {
   updateSceneSprites() {
     this.sceneSprites = [];
     for(let s of model.getScenes()) {
-      let restriction = getRestriction(s.type);
+      let restriction = getRestriction(s.get("type"));
       let sprite = new SceneSprite(s, restriction);
       s.setSprite(sprite);
       sprite.readDestinationFromModel();
@@ -101,18 +101,22 @@ class  View {
       this.$guiCol2.empty();
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
-        this.$guiCol2.append( this.buildStoryItem(c));
+        view.$guiCol2.append(view.buildStoryItem(c));
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
       // Col 3
       this.$guiCol3.empty();
       this.$guiCol3.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach((k,v,m) => this.$guiCol3.append( this.buildStoryItem(v)));
+      model.story.values.forEach(function(k,v,m) {
+        view.$guiCol3.append(view.buildStoryItem(v))
+      });
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
 
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
-      model.story.locations.forEach((k,v,m) => this.$guiCol3.append( this.buildStoryItem(k)));
+      model.story.locations.forEach(function(k,v,m){
+        view.$guiCol3.append(view.buildStoryItem(v))
+      });
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
@@ -135,23 +139,39 @@ class  View {
     this.$guiCol1.append($storyItem);
   }
 
+  displayArrayOfObj (arr) {
+    let a2 = [];
+    for (let o of arr) {
+      a2.push(o.get("name"));
+    }
+    return a2.join(", ");
+  }
+
   assembleDetailViewHtml(entity){
     let $storyItem = $(`<div class="storyItem"></div>`);
     entity.fields.forEach(function(v, k){
-      let txt = "symbol" === typeof v ? v.description: 
-                      v === undefined ? "" :
-                "object" === typeof v ? v.name : v;
-      console.log(v);
-      $storyItem.append(`<div>
-          <div class="fieldLabel">${k.label}:</div>
-          <div class="fieldValue">${txt}</div>
-        </div>`);
+      console.log(v,k)
+      if(k.name === "image") {
+        if (v.length > 0){
+          $storyItem.prepend(`<div><img src="${v}"></div>`);
+        }
+      }
+      else {
+        console.log("-->", v);
+        let txt = v instanceof Array ? view.displayArrayOfObj(v) :
+                           v && v.id ? v.get("name") :
+                                       v ;
+        $storyItem.append(`<div>
+            <div class="fieldLabel">${k.label}:</div>
+            <div class="fieldValue">${txt}</div>
+          </div>`);
+      }
     });
     return $storyItem;
   }
 
   buildStoryItem (entity) {
-    let select = $(`<a class="choose">${entity.name || entity.get("name")}</a>`)
+    let select = $(`<a class="choose">${entity.get("name")}</a>`)
     select.click(function(){ control["select"](entity); })
 
     let edit = $(`<a class="edit">edit</a>`);
@@ -216,26 +236,24 @@ class SceneSprite {
 }
 
 function getRestriction(sceneType) {
-  switch(sceneType) {
-    case SceneTypeNames.INCITING_INCIDENT :{
+  switch(sceneType.name) {
+    case sceneTypeNames.INCITING_INCIDENT:{
       return new IncitingIncidentRestriction();
     }
-    case SceneTypeNames.PLOT_POINT_I :{
+    case sceneTypeNames.PLOT_POINT_1:{
       return new PlotPoint1Restriction();
     }
-    case SceneTypeNames.CENTRAL_POINT :{
+    case sceneTypeNames.CENTRAL_POINT:{
       return new CentralPointRestriction();
     }
-    case SceneTypeNames.PLOT_POINT_II :{
+    case sceneTypeNames.PLOT_POINT_2:{
       return new PlotPoint2Restriction();
     }
-    case SceneTypeNames.CLIMAX :{
+    case sceneTypeNames.CLIMAX:{
       return new ClimaxRestriction();
     }
-    default: {
-      return new RegularRestriction();
-    }
   }
+  return new RegularRestriction();
 }
 
 class RegularRestriction {
@@ -288,55 +306,15 @@ class ModalDialogue {
     this.idcounter = 0;
     this.name= name;
     this.$htmlBody = $htmlBody;
-    if (entity.constructor.name == "Character" || entity.constructor.name == "Scene") {
-      let formFields = this.fields;
-      let c = this.idcounter;
-      entity.fields.forEach(function(v, fieldType, m){
-        let id = "modalField_" + c++;
-        formFields.push(
-         FormFactory.makeFormField(id, fieldType, entity)
-        );
-      });
-    }
-    else{
-      for (let fieldName of fieldNames) {
-        let t = typeof(entity[fieldName])
-        t = Array.isArray(entity[fieldName]) ? "array" : t;
-        let id = "modalField_" + this.idcounter++;
 
-        switch(t) {
-          case "array": {
-            this.fields.push(new CharacterCheckboxes(
-              id,
-              fieldName,
-              entity[fieldName],
-              entity,
-              fieldName
-            ));
-            break;
-          }
-          case "symbol": {
-            let symbols = control.findSymbolSiblings(entity[fieldName]);
-            this.fields.push(new SceneTypeDropDown(
-              id,
-              fieldName,
-              symbols,
-              entity,
-              fieldName));
-            break;
-          }
-          default: {
-            this.fields.push(new TextField(
-              id,
-              fieldName,
-              entity[fieldName],
-              entity,
-              fieldName));
-            break;
-          }
-        }
-      }
-    }
+    let formFields = this.fields;
+    let c = this.idcounter;
+    entity.fields.forEach(function(v, fieldType, m){
+      let id = "modalField_" + c++;
+      formFields.push(
+       FormFactory.makeFormField(id, fieldType, entity)
+      );
+    });
   }
 
   open() {
@@ -433,24 +411,8 @@ class TextAreaNG extends FormFieldNG {
 
 class DropDownNG extends FormFieldNG {
   assembleInput(){
-    console.log(this.dataField);
     let curVal = this.entity.fields.get(this.dataField);
-    if ( "symbol" === typeof curVal ) {
-      this.isSymbol = true;
-      return `<select id="${this.id}" name="${this.id}">${this.symOptions()}</select>`
-    }
     return `<select id="${this.id}" name="${this.id}">${this.options()}</select>`
-  }
-
-  symOptions() {
-    let curVal = this.entity.fields.get(this.dataField);
-    let options = "";
-    for ( let char in this.dataField.characteristic) {
-      let sym = this.dataField.characteristic[char];
-      let selected = curVal === sym ? ' selected="selected"' : '';
-      options += `<option value="${sym.description}"${selected}>${sym.description}</option>`
-    }
-    return options;
   }
 
   options() {
@@ -458,30 +420,23 @@ class DropDownNG extends FormFieldNG {
     let options = "";
 
     this.dataField.characteristic.forEach(function(v, k){
+      let obj = v.id ? v : k;
       let selected = '';
       if(curVal){
-        selected = curVal.id === v.id ? ' selected="selected"' : '';
+        selected = curVal.id === obj.id ? ' selected="selected"' : '';
       }
-      options += `<option value="${v.id}"${selected}>${v.get("name")}</option>`
+      options += `<option value="${obj.id}"${selected}>${obj.get("name")}</option>`
     });
-
     return options;
   }
 
   findSelected() {
     let identifier = $('#' + this.id).val();
-    if( this.isSymbol ) {
-      for (let char in this.dataField.characteristic) {
-        let sym = this.dataField.characteristic[char];
-        if ( identifier === sym.description ){
-          return sym;
-        }
-      }
-    }
     let res;
-    this.dataField.characteristic.forEach(function(v){
-      if(v.id === identifier) {
-        res = v;
+    this.dataField.characteristic.forEach(function(v,k){
+      let obj = v.id ? v : k;
+      if(obj.id === identifier) {
+        res = obj;
       }
     });
     return res;

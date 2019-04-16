@@ -42,7 +42,7 @@ function setup() {
     ],
     scenes: [
       {
-        type: "INCITING_INCIDENT",
+        type: "Inciting Incident",
         name: "Start delivery",
         description: "...",
         t: 0.2,
@@ -56,7 +56,7 @@ function setup() {
         characters: ["Red Riding Hood"]
       },
       {
-        type: "REGULAR_SCENE",
+        type: "Regular Scene",
         name: "A short intermission",
         description: "...",
         t: 0.3,
@@ -70,7 +70,7 @@ function setup() {
         characters: []
       },
       {
-        type: "REGULAR_SCENE",
+        type: "Regular Scene",
         name: "Monologue of the wolf",
         description: "...",
         t: 0.4,
@@ -84,7 +84,7 @@ function setup() {
         characters: ["Wolf"]
       },
       {
-        type: "CENTRAL_POINT",
+        type: "Central Point",
         name: "Wolf attacks",
         description: "...",
         t: 0.7,
@@ -98,7 +98,7 @@ function setup() {
         characters: ["Red Riding Hood", "Wolf"]
       },
       {
-        type: "CLIMAX",
+        type: "Climax",
         name: "Hunter guts wolf",
         description: "...",
         t: 0.8,
@@ -184,12 +184,12 @@ function draw() {
     strokeWeight( s.scene.active ? 2 : 1);
     fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
-    if (s.scene.type !== SceneTypeNames.REGULAR_SCENE) {
+    if (s.scene.get("type").name !== sceneTypeNames.REGULAR_SCENE) {
       strokeWeight(1);
       fill(153);
       let sct = s.scene.get("type");
-      if (sct !== SceneTypeNames.REGULAR_SCENE ) {
-        text(sct.description, Math.round(s.x), Math.round(s.y -20));
+      if (sct !== sceneTypeNames.REGULAR_SCENE ) {
+        text(sct.name, Math.round(s.x), Math.round(s.y -20));
       }
     }
   }
