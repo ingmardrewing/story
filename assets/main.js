@@ -12,7 +12,7 @@ function setup() {
   createCanvas(view.w, view.h);
 
   let data = {
-    title: "Red Riding Hood",
+    name: "Red Riding Hood",
     description: "A food delivery service employee gets eaten by a wolf and reemerges from his belly once the wolf gets killed and cut open.",
     locations:[
       {name: "Forest", image: ""},
@@ -42,12 +42,12 @@ function setup() {
     ],
     scenes: [
       {
-        type: "INCITING_INCIDENT",
-        title: "Start delivery",
+        type: "Inciting Incident",
+        name: "Start delivery",
         description: "...",
         t: 0.2,
         location: "Forest",
-        throughline: "MAIN_CHARACTER",
+        throughline: "Main Character",
         values: {
           "Suspense": 0.3,
           "Life": 0.6
@@ -56,12 +56,12 @@ function setup() {
         characters: ["Red Riding Hood"]
       },
       {
-        type: "REGULAR_SCENE",
-        title: "A short intermission",
+        type: "Regular Scene",
+        name: "A short intermission",
         description: "...",
         t: 0.3,
         location: "Ad Space",
-        throughline: "OBJECTIVE",
+        throughline: "Objective",
         values: {
           "Suspense": 0.7,
           "Life": 0.4
@@ -70,12 +70,12 @@ function setup() {
         characters: []
       },
       {
-        type: "REGULAR_SCENE",
-        title: "Monologue of the wolf",
+        type: "Regular Scene",
+        name: "Monologue of the wolf",
         description: "...",
         t: 0.4,
         location: "Forest",
-        throughline: "INFLUENCE_CHARACTER",
+        throughline: "Influence Character",
         values: {
           "Suspense": 0.4,
           "Life": 0.7
@@ -84,12 +84,12 @@ function setup() {
         characters: ["Wolf"]
       },
       {
-        type: "CENTRAL_POINT",
-        title: "Wolf attacks",
+        type: "Central Point",
+        name: "Wolf attacks",
         description: "...",
         t: 0.7,
         location: "Forest",
-        throughline: "RELATIONSHIP",
+        throughline: "Relationship",
         values: {
           "Suspense": 0.7,
           "Life": 0.3
@@ -98,12 +98,12 @@ function setup() {
         characters: ["Red Riding Hood", "Wolf"]
       },
       {
-        type: "CLIMAX",
-        title: "Hunter guts wolf",
+        type: "Climax",
+        name: "Hunter guts wolf",
         description: "...",
         t: 0.8,
         location: "Granny's Home",
-        throughline: "RELATIONSHIP",
+        throughline: "Relationship",
         values: {
           "Suspense": 0.4,
           "Life": 0.7
@@ -114,9 +114,13 @@ function setup() {
     ],
   } ;
 
-    model.story = new Story();
-    model.story.title = data.title;
+    model.story.name = data.name;
     model.story.description = data.description;
+    model.initFields();
+
+    data.locations.forEach(function(location){
+      control.addLocation(location.name);
+    });
 
     data.values.forEach(function(valueName){
       control.addValue(valueName);
@@ -180,10 +184,13 @@ function draw() {
     strokeWeight( s.scene.active ? 2 : 1);
     fill( s.dragged ? color.SCENE_FILL_ACTIVE : color.SCENE_FILL);
     ellipse(s.x, s.y, view.sceneRadius, view.sceneRadius);
-    if (s.scene.type !== SceneTypeNames.REGULAR_SCENE) {
+    if (s.scene.get("type").name !== sceneTypeNames.REGULAR_SCENE) {
       strokeWeight(1);
       fill(153);
-      text(s.scene.type.description, Math.round(s.x), Math.round(s.y -20));
+      let sct = s.scene.get("type");
+      if (sct !== sceneTypeNames.REGULAR_SCENE ) {
+        text(sct.name, Math.round(s.x), Math.round(s.y -20));
+      }
     }
   }
 }
@@ -198,6 +205,7 @@ function mousePressed(e) {
     if (distance < view.sceneRadius) {
       s.dragged = true;
       s.scene.activate();
+      view.updateDetailView(s.scene);
       noHit = false;
     }
     else {
@@ -239,3 +247,6 @@ hotkeys("ctr+shift+z,cmd+shift+z", function keyPressed(e, h) {
   control.redo();
 });
 
+hotkeys("enter,return", function keyPressed(e, h) {
+  $(".save").trigger("click");
+});

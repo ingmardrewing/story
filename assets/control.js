@@ -1,32 +1,43 @@
 class Control {
-  commandQueue;
-  characterCount = 0;
-
   constructor() {
+    this.characterCount = 0;
+    this.locationCount = 0;
     this.commandQueue = new CommandQueue();
   }
 
-  selectValue(val){
-    view.scope = val;
-    view.update();
+  select(entity){
+    switch(entity.constructor.name){
+      case "Value": {
+        view.scope = entity;
+        view.updateDetailView(entity);
+        view.update();
+        break;
+      }
+      default: {
+        view.updateDetailView(entity);
+      }
+    }
   }
 
   addValue(valueName) {
     this.commandQueue.addCommand(new AddValueCommand(valueName));
   }
 
-  editValue(value) {
-   let md = new ModalDialogue(
-      "Edit Value",
-      $('body'),
-      value,
-      ["name"]
-    );
-    md.open();
-  }
-
-  deleteValue(value) {
-    this.commandQueue.addCommand(new DeleteValueCommand(value));
+  delete(entity) {
+    switch(entity.constructor.name) {
+      case "Value":{
+        this.commandQueue.addCommand(new DeleteValueCommand(entity));
+        break;
+      }
+      case "Character":{
+        this.commandQueue.addCommand(new DeleteCharacterCommand(entity));
+        break;
+      }
+      case "Location":{
+        this.commandQueue.addCommand(new DeleteLocationCommand(entity));
+        break;
+      }
+    }
   }
 
   addCharacter(params) {
@@ -36,55 +47,48 @@ class Control {
     this.characterCount += 1;
   }
 
-  editCharacter(character) {
-    let md = new ModalDialogue(
-      "Edit Value",
-      $('body'),
-      character,
-      ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"]
-    );
-    md.open();
-  }
-
-  deleteCharacter(character) {
-    this.commandQueue.addCommand(new DeleteCharacterCommand(character));
-  }
-
   addLocation(locationName) {
     let params = locationName ? {name: locationName} :{name:"New Location"};
+    params.id = "location_" + this.locationCount++;
     this.commandQueue.addCommand(new AddLocationCommand(params));
   }
 
-  selectLocation(location) {
-    // TODO: impl.
-  }
+  edit(entity) {
+    if(!(entity && entity.constructor)){
+      return;
+    }
 
-  editLocation(location) {
+    let headline, fields;
+    switch(entity.constructor.name){
+      case "Character":{
+        fields = ["archetype", "image", "name", "purpose", "motivation", "methodology", "evaluation", "biography"];
+        break;
+      }
+      case "Scene":{
+        fields = ["image", "name", "description", "conflict", "type", "characters", "location", "throughline" ];
+        break;
+      }
+      case "Location":{
+        fields = ["name", "description","image"];
+        break;
+      }
+      case "Value":{
+        fields = ["name" ];
+        break;
+      }
+    }
+
     let md = new ModalDialogue(
-      "Edit Location",
+      `Edit ${entity.constructor.name}`,
       $('body'),
-      location,
-      ["name", "image"]
+      entity,
+      fields // TODO: remove when new fields are ready
     );
     md.open();
-  }
-
-  deleteLocation(location){
-    this.commandQueue.addCommand(new DeleteLocationCommand({location:location}));
   }
 
   addScene (params) {
     this.commandQueue.addCommand(new AddSceneFromJSONCommand(params));
-  }
-
-  editScene(scene) {
-    let md = new ModalDialogue(
-      "Edit Scene",
-      $('body'),
-      scene,
-      ["title", "description", "image", "conflict", "type", "characters"]
-    );
-    md.open();
   }
 
   moveScene(scene, x, y) {
@@ -126,32 +130,11 @@ class Control {
     view.updateSceneSprites();
     view.update();
   }
-
-  findSymbolSiblings(sym){
-    for( let s in SceneTypeNames ) {
-      if (sym === SceneTypeNames[s]){
-        return SceneTypeNames;
-      }
-    }
-    for( let s in characterArchetypes) {
-      if (sym === characterArchetypes[s]){
-        return characterArchetypes;
-      }
-    }
-    for( let s in throughlines) {
-      if (sym === throughlines[s]){
-        return throughlines;
-      }
-    }
-    return {};
-  }
 }
 
 class CommandQueue {
-  history = [];
-  queue = [];
-
   addCommand(command) {
+    this.history = [];
     this.queue = [];
     this.do(command);
     view.updateSceneSprites();
@@ -182,25 +165,26 @@ class CommandQueue {
 }
 
 class Command {
-  payload;
-
   constructor(payload){
     this.payload = payload;
   }
 }
 
 class AddCharacterCommand extends Command {
-  char;
+  constructor(payload) {
+    super(payload);
+    this.char = undefined;
+  }
 
   do(){
     let newArchetype ;
-    for (let at in characterArchetypes) {
-      if(at === this.payload.archetype) {
-        newArchetype = at;
+    for (let archetype of model.characterArchetypes) {
+      if(archetype.name === this.payload.archetype) {
+        newArchetype = archetype;
         break;
       }
     }
-    this.char = new StoryCharacter(this.payload, newArchetype);
+    this.char = new Character(this.payload, newArchetype);
     model.story.addCharacter(this.char);
   }
 
@@ -210,10 +194,13 @@ class AddCharacterCommand extends Command {
 }
 
 class AddValueCommand extends Command {
-  value;
+  constructor(payload) {
+    super(payload);
+    this.value = undefined;
+  }
 
   do() {
-    this.value = new StoryValue(this.payload);
+    this.value = new Value(this.payload);
     model.story.addStoryValue(this.value);
     for(let s of model.story.getScenes()) {
       s.values.set(this.value, 0.5);
@@ -229,7 +216,11 @@ class AddValueCommand extends Command {
 }
 
 class DeleteCharacterCommand extends Command {
-  scenes;
+  constructor(payload) {
+    super(payload);
+    this.scenes = undefined;
+  }
+
   do () {
     this.scenes = [];
 
@@ -250,7 +241,6 @@ class DeleteCharacterCommand extends Command {
   }
 }
 class DeleteValueCommand extends Command {
-  s2vmap;
   do () {
     this.s2vmap = new Map();
     model.story.values.delete(this.payload);
@@ -269,29 +259,46 @@ class DeleteValueCommand extends Command {
 }
 
 class AddLocationCommand extends Command {
-  loc;
   do() {
     this.loc = new Location(this.payload);
     model.story.addLocation(this.loc);
   }
 
   undo() {
-    removeItemFromArray(model.story.locations, this.location);
+    model.story.locations.delete(this.location);
   }
 }
 
 class DeleteLocationCommand extends Command {
   do() {
-    removeItemFromArray(model.story.locations, this.payload.location);
+    removeItemFromArray(model.story.locations, this.payload);
   }
 
   undo() {
-    model.story.addLocation(this.payload.location);
+    model.story.addLocation(this.payload);
   }
 }
 
+function findSymbolByName(name){
+  for( let type in model.sceneTypes) {
+    if (name === type.name){
+      return type;
+    }
+  }
+  for( let archetype in model.characterArchetypes) {
+    if (name === archetype.name){
+      return archetype;
+    }
+  }
+  for( let throughline in model.throughlines) {
+    if (name === throughline.name){
+      return throughline;
+    }
+  }
+  return {};
+}
+
 class AddSceneFromJSONCommand extends Command {
-  scene;
   do() {
     let characters = [];
     for (let charName in this.payload.characters) {
@@ -304,14 +311,20 @@ class AddSceneFromJSONCommand extends Command {
     let type = model.getSceneTypeByName(this.payload.type)
 
     let vmap = new Map();
+
+    let self = this;
+
     model.story.values
-      .forEach((k, v, m) => vmap.set(v, this.payload.values[v.name] ))
+      .forEach(function(k, v){
+        vmap.set(v, self.payload.values[v.get("name")] )
+      });
+
     this.scene = new Scene(
       this.payload,
       characters,
       loc,
       type,
-      {name: "througline"},
+      findSymbolByName(this.payload.throughline),
       "",
       vmap);
 
@@ -346,7 +359,7 @@ class MoveSceneCommand extends Command {
 class RemoveSceneTypeCommand extends Command {
   do() {
     this.payload.oldSceneType = this.payload.scene.type;
-    this.payload.scene.type = SceneTypeNames.REGULAR_SCENE;
+    this.payload.scene.type = model.sceneTypes[0];
   }
 
   undo() {
@@ -356,14 +369,27 @@ class RemoveSceneTypeCommand extends Command {
 
 class UpdateModelFieldCommand extends Command {
   do(){
-    let pl = this.payload;
-    pl.oldValue = pl.model[pl.fieldName]
-    pl.model[pl.fieldName] = pl.newValue;
+    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
+      let pl = this.payload;
+      pl.oldValue = pl.model.fields.get(pl.fieldName);
+      pl.model.fields.set(pl.fieldName, pl.newValue);
+    }
+    else{
+      let pl = this.payload;
+      pl.oldValue = pl.model[pl.fieldName]
+      pl.model[pl.fieldName] = pl.newValue;
+    }
   }
 
   undo() {
-    let pl = this.payload;
-    pl.model[pl.fieldName] = pl.oldValue;
+    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
+      let pl = this.payload;
+      pl.model.fields.set(pl.fieldName, pl.oldValue);
+    }
+    else{
+      let pl = this.payload;
+      pl.model[pl.fieldName] = pl.oldValue;
+    }
   }
 }
 
@@ -382,12 +408,13 @@ function createSceneAt(x, y) {
   }
 
   let vertical = mouseY / view.h;
-  let vo = new Map();
-  model.story.values
-    .forEach((k,v,m) => vo.set(k, k === view.scope ? vertical : 0.5));
+  let vo = {};
+  model.story.values.forEach(function(v,k,m) {
+    vo[k.get("name")] = k === view.scope ? vertical : 0.5;
+  });
 
   control.addScene({
-    title: "",
+    name: "",
     description: "...",
     location: "",
     t: mouseX / view.w,
@@ -396,5 +423,3 @@ function createSceneAt(x, y) {
     characters: []
   })
 }
-
-

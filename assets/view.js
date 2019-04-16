@@ -14,18 +14,44 @@ const thres = {
 }
 Object.freeze(thres);
 
-class  View {
-  scope ;
-  sceneRadius = 15;
-  sceneSprites = [];
-  $guiContainer;
-  $guiCol1;
-  $guiCol2;
-  $guiCol3;
-  $guiCol4;
+class FormFactory {
+  static makeFormField(id, dataField, entity) {
+    switch(dataField.constructor.name){
+      case "ShortText": {
+        return new TextFieldNG( id, dataField, entity );
+        break;
+      }
+      case "LongText": {
+        return new TextAreaNG( id, dataField, entity );
+        break;
+      }
+      case "SingleValueList": {
+        return new DropDownNG( id, dataField, entity );
+        break;
+      }
+      case "MultipleValueList": {
+        return new CheckboxesNG( id, dataField, entity );
+        break;
+      }
+    }
+  }
+}
 
-  w = 1200;
-  h = 300;
+class  View {
+  constructor(){
+    this.sceneRadius = 15;
+    this.sceneSprites = [];
+    this.$guiContainer = undefined;
+    this.$guiCol1 = undefined;
+    this.$guiCol2 = undefined;
+    this.$guiCol3 = undefined;
+    this.$guiCol4 = undefined;
+
+    this.w = 1200;
+    this.h = 300;
+
+    this.detailViewEntity = undefined;
+  }
 
   setScope(scope) {
     this.scope = scope;
@@ -34,7 +60,7 @@ class  View {
   updateSceneSprites() {
     this.sceneSprites = [];
     for(let s of model.getScenes()) {
-      let restriction = getRestriction(s.type);
+      let restriction = getRestriction(s.get("type"));
       let sprite = new SceneSprite(s, restriction);
       s.setSprite(sprite);
       sprite.readDestinationFromModel();
@@ -47,6 +73,7 @@ class  View {
     for ( let ss of this.sceneSprites) {
       ss.readDestinationFromModel();
     }
+    this.updateDetailView(view.detailViewEntity);
     this.updateGui();
   }
 
@@ -64,87 +91,114 @@ class  View {
       this['$guiCol'+i] = $('<div class="guiCol">');
       this.$guiContainer.append(this['$guiCol'+i]);
     }
+    this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
   }
 
   updateGui() {
     if(this.$guiContainer) {
-      this.$guiContainer.children().empty();
-
-      let scene = this.getActiveScene();
-      if(scene) {
-        this.$guiCol1.append(`<h2 class="storyItem">Current Scene</h2>`);
-        let img = scene.image ? `<img src="${scene.image}">`:"";
-        let chars = scene.characters.map((s) => s.name).join(", ");
-        let $storyItem = $(`<div class="storyItem">
-          ${img}
-          Type: ${scene.type.description || ''}<br>
-          Location: ${scene.type.location || ''}<br>
-          Title: ${scene.title || ''}<br>
-          Description: ${scene.description || ''}<br>
-          Characters: ${chars}
-        </div>`);
-        let $link = $(`<a class="edit">edit</a>`);
-        $link.click(function(){
-          control.editScene(scene);
-        });
-        $storyItem.append($link);
-        this.$guiCol1.append($storyItem);
-      }
-
-      this.$guiCol2.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach((k,v,m) => this.$guiCol2.append( buildStoryItem("Value", v)));
-      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
-
+      // Col 2
+      this.$guiCol2.empty();
       this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
       for( let c of model.story.characters) {
-        this.$guiCol2.append(
-          buildStoryItem("Character", c)
-        );
+        view.$guiCol2.append(view.buildStoryItem(c));
       }
       this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
 
+      // Col 3
+      this.$guiCol3.empty();
+      this.$guiCol3.append(`<h2 class="storyItem">Story Values</h2>`);
+      model.story.values.forEach(function(k,v,m) {
+        view.$guiCol3.append(view.buildStoryItem(v))
+      });
+      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
+
       this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
-      for( let l of model.story.locations) {
-        this.$guiCol3.append(
-          buildStoryItem("Location", l)
-        );
-      }
+      model.story.locations.forEach(function(k,v,m){
+        view.$guiCol3.append(view.buildStoryItem(v))
+      });
       this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
     }
   }
-}
 
-function buildStoryItem (fnNamePart, entity) {
-  let select = $(`<a class="choose">${entity.name}</a>`)
-  select.click(function(){ control["select"+fnNamePart](entity); })
+  updateDetailView(entity) {
+    if(!(entity && entity.constructor)){
+      return ;
+    }
+    this.detailViewEntity = entity;
 
-  let edit = $(`<a class="edit">edit</a>`);
-  edit.click(function(){ control["edit"+fnNamePart](entity); })
+    this.$guiCol1.empty();
+    this.$guiCol1.append(`<h2 class="storyItem">${entity.constructor.name}: ${entity.name}</h2>`);
 
-  let del = $(`<a class="delete">delete</a>`);
-  del.click(function(){ control["delete"+fnNamePart](entity); })
+    let $storyItem = this.assembleDetailViewHtml(entity);
+    let $link = $(`<a class="edit">edit</a>`);
+    $link.click(function(){ control.edit(entity); });
+    $storyItem.append($link);
+    let img = entity.image ? `<div class="imgContainer"><img src="${entity.image}"></div>`:"";
+    this.$guiCol1.append(img);
+    this.$guiCol1.append($storyItem);
+  }
 
-  let $item = $(`<div class="storyItem"></div>`);
-  $item.append(select);
-  $item.append(edit);
-  $item.append(del);
-  return $item;
+  displayArrayOfObj (arr) {
+    let a2 = [];
+    for (let o of arr) {
+      a2.push(o.get("name"));
+    }
+    return a2.join(", ");
+  }
+
+  assembleDetailViewHtml(entity){
+    let $storyItem = $(`<div class="storyItem"></div>`);
+    entity.fields.forEach(function(v, k){
+      console.log(v,k)
+      if(k.name === "image") {
+        if (v.length > 0){
+          $storyItem.prepend(`<div><img src="${v}"></div>`);
+        }
+      }
+      else {
+        console.log("-->", v);
+        let txt = v instanceof Array ? view.displayArrayOfObj(v) :
+                           v && v.id ? v.get("name") :
+                                       v ;
+        $storyItem.append(`<div>
+            <div class="fieldLabel">${k.label}:</div>
+            <div class="fieldValue">${txt}</div>
+          </div>`);
+      }
+    });
+    return $storyItem;
+  }
+
+  buildStoryItem (entity) {
+    let select = $(`<a class="choose">${entity.get("name")}</a>`)
+    select.click(function(){ control["select"](entity); })
+
+    let edit = $(`<a class="edit">edit</a>`);
+    edit.click(function(){ control.edit(entity); })
+
+    let del = $(`<a class="delete">delete</a>`);
+    del.click(function(){ control["delete"](entity); })
+
+    let $item = $(`<div class="storyItem"></div>`);
+    $item.append(select);
+    $item.append(edit);
+    $item.append(del);
+    return $item;
+  }
 }
 
 class SceneSprite {
-  x = 0;
-  y = 0;
-
-  destX = 0;
-  destY = 0;
-
-  dragged = false;
-  scene;
-
   constructor(scene, restriction){
     this.scene = scene;
     this.restriction = restriction;
+    this.x = 0;
+    this.y = 0;
+
+    this.destX = 0;
+    this.destY = 0;
+
+    this.dragged = false;
   }
 
   setPosition(x, y) {
@@ -162,7 +216,7 @@ class SceneSprite {
   }
 
   readDestinationFromModel() {
-    let y = this.scene.values ? this.scene.values.get(view.scope) :0.5;
+    let y =  this.scene.values.get(view.scope);
     this.setDestination(
       this.scene.t * view.w,
       y * view.h
@@ -170,7 +224,7 @@ class SceneSprite {
   }
 
   syncPosition() {
-    this.setPosition( this.destX, this.destY );
+    this.setPosition(this.destX, this.destY);
   }
 
   approxPosition() {
@@ -182,109 +236,85 @@ class SceneSprite {
 }
 
 function getRestriction(sceneType) {
-  switch(sceneType) {
-    case SceneTypeNames.INCITING_INCIDENT :{
+  switch(sceneType.name) {
+    case sceneTypeNames.INCITING_INCIDENT:{
       return new IncitingIncidentRestriction();
     }
-    case SceneTypeNames.PLOT_POINT_I :{
+    case sceneTypeNames.PLOT_POINT_1:{
       return new PlotPoint1Restriction();
     }
-    case SceneTypeNames.CENTRAL_POINT :{
+    case sceneTypeNames.CENTRAL_POINT:{
       return new CentralPointRestriction();
     }
-    case SceneTypeNames.PLOT_POINT_II :{
+    case sceneTypeNames.PLOT_POINT_2:{
       return new PlotPoint2Restriction();
     }
-    case SceneTypeNames.CLIMAX :{
+    case sceneTypeNames.CLIMAX:{
       return new ClimaxRestriction();
     }
-    default: {
-      return new RegularRestriction();
-    }
   }
+  return new RegularRestriction();
 }
 
 class RegularRestriction {
-  lowerLimit = thres.START;
-  upperLimit = thres.END;
+  constructor(){
+    this.lowerLimit = thres.START;
+    this.upperLimit = thres.END;
+  }
 }
 
 class IncitingIncidentRestriction {
-  lowerLimit = thres.START;
-  upperLimit = thres.PP1;
+  constructor() {
+    this.lowerLimit = thres.START;
+    this.upperLimit = thres.PP1;
+  }
 }
 
 class PlotPoint1Restriction {
-  lowerLimit = thres.PP1;
-  upperLimit = thres.PP1;
+  constructor() {
+    this.lowerLimit = thres.PP1;
+    this.upperLimit = thres.PP1;
+  }
 }
 
 class CentralPointRestriction {
-  lowerLimit = thres.CP;
-  upperLimit = thres.CP;
+  constructor() {
+    this.lowerLimit = thres.CP;
+    this.upperLimit = thres.CP;
+  }
 }
 
 class PlotPoint2Restriction {
-  lowerLimit = thres.PP2;
-  upperLimit = thres.PP2;
+  constructor() {
+    this.lowerLimit = thres.PP2;
+    this.upperLimit = thres.PP2;
+  }
 }
 
 class ClimaxRestriction {
-  lowerLimit = thres.PP2;
-  upperLimit = thres.END;
+  constructor() {
+    this.lowerLimit = thres.PP2;
+    this.upperLimit = thres.END;
+  }
 }
 
 class ModalDialogue {
-  $htmlBody;
-  $overlay;
-  title;
-
-  fields = [];
-  form;
-
-  idcounter = 0;
-
-  constructor(title, $htmlBody, model, fieldNames){
-    this.title = title;
+  constructor(name, $htmlBody, entity, fieldNames){
+    this.overlay = "";
+    this.form = "";
+    this.fields = [];
+    this.idcounter = 0;
+    this.name= name;
     this.$htmlBody = $htmlBody;
-    for (let fieldName of fieldNames) {
-      let field;
-      let t = typeof(model[fieldName])
-      t = Array.isArray(model[fieldName]) ? "array" : t;
-      let id = "modalField_" + this.idcounter++;
 
-      switch(t) {
-        case "array": {
-          this.fields.push(new CharacterCheckboxes(
-            id,
-            fieldName,
-            model[fieldName],
-            model,
-            fieldName
-          ));
-          break;
-        }
-        case "symbol": {
-          let symbols = control.findSymbolSiblings(model[fieldName]);
-          this.fields.push(new SceneTypeDropDown(
-            id,
-            fieldName,
-            symbols,
-            model,
-            fieldName));
-          break;
-        }
-        default: {
-          this.fields.push(new TextField(
-            id,
-            fieldName,
-            model[fieldName],
-            model,
-            fieldName));
-          break;
-        }
-      }
-    }
+    let formFields = this.fields;
+    let c = this.idcounter;
+    entity.fields.forEach(function(v, fieldType, m){
+      let id = "modalField_" + c++;
+      formFields.push(
+       FormFactory.makeFormField(id, fieldType, entity)
+      );
+    });
   }
 
   open() {
@@ -304,7 +334,7 @@ class ModalDialogue {
   assembleOverlay() {
     let self = this;
     let $container = $(`<div class="formContainer">
-      <h2>${this.title}</h2>
+      <h2>${this.name}</h2>
       ${this.form}
     </div>`);
 
@@ -341,14 +371,117 @@ class ModalDialogue {
   }
 }
 
-class Field {
-  model;
-  modelFieldName;
-  name;
-  value;
-  id;
+class FormFieldNG {
+  constructor(id, dataField, entity){
+    this.id = id;
+    this.dataField = dataField;
+    this.entity = entity;
+  }
 
-  constructor(id, name, value, model, modelFieldname) {
+  assembleHtml() {
+    let input = this.assembleInput();
+    return `<label class="formLabel" for="${this.id}">${this.dataField.label}</label>
+          ${input}`;
+  }
+
+  assembleInput(){ return ""; }
+
+  save() {
+    control.updateModelField(
+      this.entity,
+      this.dataField,
+      $('#' + this.id).val()
+    );
+  }
+}
+
+class TextFieldNG extends FormFieldNG {
+  assembleInput(){
+    let val = this.entity.fields.get(this.dataField) || '';
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${val}" />`;
+  }
+}
+
+class TextAreaNG extends FormFieldNG {
+  assembleInput(){
+    let val = this.entity.fields.get(this.dataField) || '';
+    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text">${val}</textarea>`;
+  }
+}
+
+class DropDownNG extends FormFieldNG {
+  assembleInput(){
+    let curVal = this.entity.fields.get(this.dataField);
+    return `<select id="${this.id}" name="${this.id}">${this.options()}</select>`
+  }
+
+  options() {
+    let curVal = this.entity.fields.get(this.dataField);
+    let options = "";
+
+    this.dataField.characteristic.forEach(function(v, k){
+      let obj = v.id ? v : k;
+      let selected = '';
+      if(curVal){
+        selected = curVal.id === obj.id ? ' selected="selected"' : '';
+      }
+      options += `<option value="${obj.id}"${selected}>${obj.get("name")}</option>`
+    });
+    return options;
+  }
+
+  findSelected() {
+    let identifier = $('#' + this.id).val();
+    let res;
+    this.dataField.characteristic.forEach(function(v,k){
+      let obj = v.id ? v : k;
+      if(obj.id === identifier) {
+        res = obj;
+      }
+    });
+    return res;
+  }
+
+  save() {
+    let selection = this.findSelected();
+    control.updateModelField(
+      this.entity,
+      this.dataField,
+      selection);
+  }
+}
+
+class CheckboxesNG extends FormFieldNG {
+  assembleInput(){
+    let html = `<div>`;
+    let preselected = this.entity.fields.get(this.dataField);
+
+    this.dataField.characteristic.forEach(function(v, k, m){
+      let checked = preselected.includes(v) ? ` checked="checked"` : '';
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.get("name")}</label></div>`
+    });
+    html += `</div>`;
+
+    return html;
+  }
+
+  save () {
+    let newCharacters = [];
+    this.dataField.characteristic.forEach(function(v, k, m){
+      if($('#' + v.id).prop("checked")){
+        newCharacters.push(v);
+      }
+    });
+    control.updateModelField(
+      this.entity,
+      this.dataField,
+      newCharacters
+    );
+  }
+}
+
+class FormField {
+    constructor(id, name, value, model, modelFieldname) {
     this.id = id;
     this.name = name;
     this.value = value;
@@ -374,13 +507,13 @@ class Field {
   }
 }
 
-class TextField extends Field {
+class TextField extends FormField {
   assembleInput(){
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
   }
 }
 
-class SceneTypeDropDown extends Field {
+class SceneTypeDropDown extends FormField {
   assembleInput(){
     let select = `<select id="${this.id}" name="${this.id}">`
 
@@ -412,13 +545,12 @@ class SceneTypeDropDown extends Field {
   }
 }
 
-class CharacterCheckboxes extends Field {
+class CharacterCheckboxes extends FormField {
   assembleInput(){
     let html = `<div>`;
     for( let c of model.story.characters ){
       let checked = this.model.characters.includes(c) ? ` checked="checked"` : "";
-      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.name}</label></div>`
-      c.name
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.get("name")}</label></div>`
     }
     html += `</div>`;
     return html;
