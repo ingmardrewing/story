@@ -152,7 +152,7 @@ class  View {
     entity.fields.forEach(function(v, k){
       console.log(v,k)
       if(k.name === "image") {
-        if (v.length > 0){
+        if (v && v.length > 0){
           $storyItem.prepend(`<div><img src="${v}"></div>`);
         }
       }
@@ -371,7 +371,7 @@ class ModalDialogue {
   }
 }
 
-class FormFieldNG {
+class FieldView {
   constructor(id, dataField, entity){
     this.id = id;
     this.dataField = dataField;
@@ -395,21 +395,21 @@ class FormFieldNG {
   }
 }
 
-class TextFieldNG extends FormFieldNG {
+class TextFieldNG extends FieldView {
   assembleInput(){
     let val = this.entity.fields.get(this.dataField) || '';
     return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${val}" />`;
   }
 }
 
-class TextAreaNG extends FormFieldNG {
+class TextAreaNG extends FieldView {
   assembleInput(){
     let val = this.entity.fields.get(this.dataField) || '';
     return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text">${val}</textarea>`;
   }
 }
 
-class DropDownNG extends FormFieldNG {
+class DropDownNG extends FieldView {
   assembleInput(){
     let curVal = this.entity.fields.get(this.dataField);
     return `<select id="${this.id}" name="${this.id}">${this.options()}</select>`
@@ -451,7 +451,7 @@ class DropDownNG extends FormFieldNG {
   }
 }
 
-class CheckboxesNG extends FormFieldNG {
+class CheckboxesNG extends FieldView {
   assembleInput(){
     let html = `<div>`;
     let preselected = this.entity.fields.get(this.dataField);
@@ -480,93 +480,3 @@ class CheckboxesNG extends FormFieldNG {
   }
 }
 
-class FormField {
-    constructor(id, name, value, model, modelFieldname) {
-    this.id = id;
-    this.name = name;
-    this.value = value;
-    this.model = model;
-    this.modelFieldName = modelFieldname;
-  }
-
-  assembleHtml() {
-    let input = this.assembleInput();
-    return `
-          <label class="formLabel" for="${this.id}">${this.name}</label>
-          ${input}`;
-  }
-
-  assembleInput(){ return ""; }
-
-  save() {
-    control.updateModelField(
-      this.model,
-      this.modelFieldName,
-      $('#' + this.id).val()
-    );
-  }
-}
-
-class TextField extends FormField {
-  assembleInput(){
-    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.value || '' }" />`;
-  }
-}
-
-class SceneTypeDropDown extends FormField {
-  assembleInput(){
-    let select = `<select id="${this.id}" name="${this.id}">`
-
-    let currentSym = this.model[this.modelFieldName];
-    for (let key in this.value) {
-      let sym = this.value[key]
-      let selected = currentSym === sym ? ` selected="selected"` : "";
-      select += `<option value="${sym.description}"${selected}>${sym.description}</option>`
-    }
-    select +="</select>"
-    return select;
-  }
-
-  save() {
-    let sym;
-    for (let key in this.value) {
-      let currentsym = this.value[key]
-      if(currentsym.description === $('#' + this.id).val()){
-        sym = currentsym;
-        break;
-      }
-    }
-    control.removeSceneTypeFromScenes(sym);
-    control.updateModelField(
-      this.model,
-      this.modelFieldName,
-      sym
-    );
-  }
-}
-
-class CharacterCheckboxes extends FormField {
-  assembleInput(){
-    let html = `<div>`;
-    for( let c of model.story.characters ){
-      let checked = this.model.characters.includes(c) ? ` checked="checked"` : "";
-      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${c.id}" type="checkbox" name="${c.id}" value="${c.id}"${checked}><label for="${c.id}">${c.get("name")}</label></div>`
-    }
-    html += `</div>`;
-    return html;
-  }
-
-  save () {
-    let newCharacters = [];
-    for( let c of model.story.characters ){
-      if($('#' + c.id).prop("checked")){
-        newCharacters.push(c);
-      }
-    }
-    control.updateModelField(
-      this.model,
-      this.modelFieldName,
-      newCharacters
-    );
-  }
-}
