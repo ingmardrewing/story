@@ -14,23 +14,27 @@ const thres = {
 }
 Object.freeze(thres);
 
-class FormFactory {
+class FieldViewFactory {
   static makeFormField(id, dataField, entity) {
     switch(dataField.constructor.name){
+      case "Image": {
+        return new ImageView( id, dataField, entity );
+        break;
+      }
       case "ShortText": {
-        return new TextFieldNG( id, dataField, entity );
+        return new ShortTextView( id, dataField, entity );
         break;
       }
       case "LongText": {
-        return new TextAreaNG( id, dataField, entity );
+        return new LongTextView( id, dataField, entity );
         break;
       }
       case "SingleValueList": {
-        return new DropDownNG( id, dataField, entity );
+        return new SingleValueListView( id, dataField, entity );
         break;
       }
       case "MultipleValueList": {
-        return new CheckboxesNG( id, dataField, entity );
+        return new MultipleValueListView( id, dataField, entity );
         break;
       }
     }
@@ -125,49 +129,14 @@ class  View {
     if(!(entity && entity.constructor)){
       return ;
     }
-    this.detailViewEntity = entity;
+    if (! entity) {
+      return;
+    }
 
     this.$guiCol1.empty();
-    this.$guiCol1.append(`<h2 class="storyItem">${entity.constructor.name}: ${entity.name}</h2>`);
-
-    let $storyItem = this.assembleDetailViewHtml(entity);
-    let $link = $(`<a class="edit">edit</a>`);
-    $link.click(function(){ control.edit(entity); });
-    $storyItem.append($link);
-    let img = entity.image ? `<div class="imgContainer"><img src="${entity.image}"></div>`:"";
-    this.$guiCol1.append(img);
-    this.$guiCol1.append($storyItem);
-  }
-
-  displayArrayOfObj (arr) {
-    let a2 = [];
-    for (let o of arr) {
-      a2.push(o.get("name"));
-    }
-    return a2.join(", ");
-  }
-
-  assembleDetailViewHtml(entity){
-    let $storyItem = $(`<div class="storyItem"></div>`);
-    entity.fields.forEach(function(v, k){
-      console.log(v,k)
-      if(k.name === "image") {
-        if (v && v.length > 0){
-          $storyItem.prepend(`<div><img src="${v}"></div>`);
-        }
-      }
-      else {
-        console.log("-->", v);
-        let txt = v instanceof Array ? view.displayArrayOfObj(v) :
-                           v && v.id ? v.get("name") :
-                                       v ;
-        $storyItem.append(`<div>
-            <div class="fieldLabel">${k.label}:</div>
-            <div class="fieldValue">${txt}</div>
-          </div>`);
-      }
-    });
-    return $storyItem;
+    this.detailViewEntity = entity;
+    let v = new DetailView(this.$guiCol1, entity);
+    v.display();
   }
 
   buildStoryItem (entity) {
@@ -298,8 +267,41 @@ class ClimaxRestriction {
   }
 }
 
+class DetailView {
+  constructor($htmlParent, entity){
+    this.$htmlParent = $htmlParent;
+    this.entity = entity;
+  }
+
+  createHeadline(){
+    this.$htmlParent.append(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.name}</h2>`);
+  }
+
+  createContent() {
+    let $storyItem = $(`<div class="storyItem"></div>`);
+    let c = 0;
+    let e = this.entity;
+    e.fields.forEach(function(v, fieldType ){
+      let id = "viewField_" + c++;
+      let fv = FieldViewFactory.makeFormField(id, fieldType, e);
+      $storyItem.append(fv.assembleView());
+    });
+
+    let $link = $(`<a class="edit">edit</a>`);
+    $link.click(function(){ control.edit(e); });
+    $storyItem.append($link);
+
+    this.$htmlParent.append($storyItem);
+  }
+
+  display() {
+    this.createHeadline();
+    this.createContent();
+  }
+}
+
 class ModalDialogue {
-  constructor(name, $htmlBody, entity, fieldNames){
+  constructor(name, $htmlBody, entity){
     this.overlay = "";
     this.form = "";
     this.fields = [];
@@ -309,10 +311,10 @@ class ModalDialogue {
 
     let formFields = this.fields;
     let c = this.idcounter;
-    entity.fields.forEach(function(v, fieldType, m){
+    entity.fields.forEach(function(v, fieldType){
       let id = "modalField_" + c++;
       formFields.push(
-       FormFactory.makeFormField(id, fieldType, entity)
+       FieldViewFactory.makeFormField(id, fieldType, entity)
       );
     });
   }
@@ -378,6 +380,10 @@ class FieldView {
     this.entity = entity;
   }
 
+  fieldValue() {
+    return this.entity.fields.get(this.dataField);
+  }
+
   assembleHtml() {
     let input = this.assembleInput();
     return `<label class="formLabel" for="${this.id}">${this.dataField.label}</label>
@@ -385,6 +391,20 @@ class FieldView {
   }
 
   assembleInput(){ return ""; }
+
+  assembleView() {
+    if(this.fieldValue()){
+      return this.layout(this.dataField.label, this.fieldValue());
+    }
+    return '';
+  }
+
+  layout(label, value){
+    return `<div>
+        <div class="fieldLabel">${label}:</div>
+        <div class="fieldValue">${value || ''}</div>
+      </div>`;
+  }
 
   save() {
     control.updateModelField(
@@ -395,35 +415,45 @@ class FieldView {
   }
 }
 
-class TextFieldNG extends FieldView {
+class ShortTextView extends FieldView {
   assembleInput(){
-    let val = this.entity.fields.get(this.dataField) || '';
-    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${val}" />`;
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.fieldValue()}" />`;
   }
 }
 
-class TextAreaNG extends FieldView {
+class ImageView extends FieldView {
   assembleInput(){
-    let val = this.entity.fields.get(this.dataField) || '';
-    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text">${val}</textarea>`;
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.fieldValue()}" />`;
+  }
+
+  assembleView() {
+    if (this.fieldValue()){
+     return `<div class="imgContainer"><img src="${entity.image}"></div>`;
+    }
+    return "";
   }
 }
 
-class DropDownNG extends FieldView {
+class LongTextView extends FieldView {
   assembleInput(){
-    let curVal = this.entity.fields.get(this.dataField);
+    return `<textarea class="formInput" name="${this.id}" id="${this.id}" type="text">${this.fieldValue() || ''}</textarea>`;
+  }
+}
+
+class SingleValueListView extends FieldView {
+  assembleInput(){
     return `<select id="${this.id}" name="${this.id}">${this.options()}</select>`
   }
 
   options() {
-    let curVal = this.entity.fields.get(this.dataField);
     let options = "";
+    let self = this;
 
     this.dataField.characteristic.forEach(function(v, k){
       let obj = v.id ? v : k;
       let selected = '';
-      if(curVal){
-        selected = curVal.id === obj.id ? ' selected="selected"' : '';
+      if(self.fieldValue()){
+        selected = self.fieldValue().id === obj.id ? ' selected="selected"' : '';
       }
       options += `<option value="${obj.id}"${selected}>${obj.get("name")}</option>`
     });
@@ -449,12 +479,19 @@ class DropDownNG extends FieldView {
       this.dataField,
       selection);
   }
+
+  assembleView() {
+    if(this.fieldValue()) {
+      return this.layout(this.dataField.label, this.fieldValue().get("name"));
+    }
+    return '';
+  }
 }
 
-class CheckboxesNG extends FieldView {
+class MultipleValueListView extends FieldView {
   assembleInput(){
     let html = `<div>`;
-    let preselected = this.entity.fields.get(this.dataField);
+    let preselected = this.fieldValue();
 
     this.dataField.characteristic.forEach(function(v, k, m){
       let checked = preselected.includes(v) ? ` checked="checked"` : '';
@@ -463,6 +500,18 @@ class CheckboxesNG extends FieldView {
     html += `</div>`;
 
     return html;
+  }
+
+  assembleView() {
+    let values = this.fieldValue();
+    if (values) {
+      let names = [];
+      for (let v of values) {
+        names.push(v.get("name"));
+      }
+      return this.layout(this.dataField.label, names.join(', '));
+    }
+    return "";
   }
 
   save () {

@@ -21,6 +21,7 @@ class Field {
   }
 }
 
+class Image extends Field {}
 class ShortText extends Field {}
 class LongText extends Field {}
 class SingleValueList extends Field {}
