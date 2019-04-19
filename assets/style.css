@@ -79,10 +79,10 @@ a:hover {
   color: #FFFFFF;
   background-color: #FFAA00;
 }
-.storyItem .choose {
+.storyItem .select{
   cursor: pointer;
 }
-.storyItem .choose.active {
+.storyItem .select.active {
   color: #FFAA00;
 }
 .storyItem .edit{

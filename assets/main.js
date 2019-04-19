@@ -8,6 +8,7 @@ function setup() {
   model = new Model();
   control = new Control();
   view = new View();
+  view.setupGui();
 
   createCanvas(view.w, view.h);
 
@@ -138,7 +139,6 @@ function setup() {
 
     model.story.scenes[0].active = true;
     view.updateSceneSprites();
-    view.setupGui();
     view.updateGui();
 }
 

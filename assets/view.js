@@ -100,60 +100,93 @@ class  View {
   }
 
   updateGui() {
-    if(this.$guiContainer) {
-      // Col 2
-      this.$guiCol2.empty();
-      this.$guiCol2.append(`<h2 class="storyItem">Characters</h2>`);
-      for( let c of model.story.characters) {
-        view.$guiCol2.append(view.buildStoryItem(c));
-      }
-      this.$guiCol2.append(`<a class="storyItem storyItemAdd" href="javascript:control.addCharacter();">+ add character</a>`);
+    this.$guiCol2.empty();
+    this.$guiCol3.empty();
 
-      // Col 3
-      this.$guiCol3.empty();
-      this.$guiCol3.append(`<h2 class="storyItem">Story Values</h2>`);
-      model.story.values.forEach(function(k,v,m) {
-        view.$guiCol3.append(view.buildStoryItem(v))
-      });
-      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addValue();">+ add story value</a>`);
+    let characters= new List(
+      this.$guiCol2,
+      'Characters',
+      model.story.characters,
+      '+ add character',
+      'addCharacter');
+    characters.render();
 
-      this.$guiCol3.append(`<h2 class="storyItem">Locations</h2>`);
-      model.story.locations.forEach(function(k,v,m){
-        view.$guiCol3.append(view.buildStoryItem(v))
-      });
-      this.$guiCol3.append(`<a class="storyItem storyItemAdd" href="javascript:control.addLocation();">+ add location</a>`);
-    }
+    let storyValues = new List(
+      this.$guiCol3,
+      'Story Values',
+      model.story.values,
+      '+ add story value',
+      'addValue');
+    storyValues.render();
+
+    let locations = new List(
+      this.$guiCol3,
+      'Locations',
+      model.story.locations,
+      '+ add location',
+      'addLocation');
+    locations.render();
   }
 
   updateDetailView(entity) {
-    if(!(entity && entity.constructor)){
-      return ;
-    }
-    if (! entity) {
-      return;
-    }
-
     this.$guiCol1.empty();
     this.detailViewEntity = entity;
     let v = new DetailView(this.$guiCol1, entity);
     v.display();
   }
+}
 
-  buildStoryItem (entity) {
-    let select = $(`<a class="choose">${entity.get("name")}</a>`)
-    select.click(function(){ control["select"](entity); })
+class List {
+  constructor($container, headline, entities, addLabel, addFunction){
+    this.$container = $container;
+    this.headline = headline;
+    this.entities = entities;
+    this.addLabel = addLabel;
+    this.addFunction = addFunction;
+  }
 
-    let edit = $(`<a class="edit">edit</a>`);
-    edit.click(function(){ control.edit(entity); })
+  render(){
+    this.createHeadline();
+    this.createList();
+    this.createAdd();
+  }
 
-    let del = $(`<a class="delete">delete</a>`);
-    del.click(function(){ control["delete"](entity); })
+  createHeadline(){
+    this.$container.append(`<h2 class="storyItem">${this.headline}</h2>`);
+  }
 
+  createList(){
+    let $c = this.$container;
+    this.entities.forEach(function(k,v){
+      let l = new ListItem(v.get ? v : k);
+      $c.append(l.renderJQuery());
+    });
+  }
+
+  createAdd(){
+    this.$container.append(`<a class="storyItem storyItemAdd" href="javascript:control.${this.addFunction}();">${this.addLabel}</a>`);
+  };
+}
+
+class ListItem {
+  constructor(entity){
+    this.entity = entity;
+  }
+
+  renderJQuery() {
+    console.log(this.entity)
     let $item = $(`<div class="storyItem"></div>`);
-    $item.append(select);
-    $item.append(edit);
-    $item.append(del);
+    for (let action of ['select', 'edit', 'delete']) {
+      $item.append(this.createButtonFor(action));
+    }
     return $item;
+  }
+
+  createButtonFor(action) {
+    let label = action === 'select' ? this.entity.get("name"): action;
+    let button = $(`<a class="${action}">${label}</a>`)
+    button.click(function(){ control[action](this.entity); });
+    return button;
   }
 }
 
@@ -273,6 +306,14 @@ class DetailView {
     this.entity = entity;
   }
 
+  display() {
+    if (! this.entity) {
+      return
+    }
+    this.createHeadline();
+    this.createContent();
+  }
+
   createHeadline(){
     this.$htmlParent.append(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.name}</h2>`);
   }
@@ -292,11 +333,6 @@ class DetailView {
     $storyItem.append($link);
 
     this.$htmlParent.append($storyItem);
-  }
-
-  display() {
-    this.createHeadline();
-    this.createContent();
   }
 }
 
