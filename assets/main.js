@@ -8,9 +8,9 @@ function setup() {
   model = new Model();
   control = new Control();
   view = new View();
-  view.setupGui();
 
   createCanvas(view.w, view.h);
+  view.setupGui();
 
   let data = {
     name: "Red Riding Hood",

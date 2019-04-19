@@ -149,7 +149,6 @@ class CommandQueue {
   redo() {
     if (this.queue.length > 0){
       let cmd = this.queue.pop();
-      // console.log("redo:", cmd.constructor.name, cmd.payload);
       this.do(cmd);
     }
   }
@@ -157,7 +156,6 @@ class CommandQueue {
   undo() {
     if (this.history.length > 0){
       let cmd = this.history.pop();
-      // console.log("undo:", cmd.constructor.name, cmd.payload);
       cmd.undo();
       this.queue.push(cmd);
     }
@@ -279,7 +277,7 @@ class DeleteLocationCommand extends Command {
   }
 }
 
-function findSymbolByName(name){
+function findByName(name){
   for( let type in model.sceneTypes) {
     if (name === type.name){
       return type;
@@ -324,7 +322,7 @@ class AddSceneFromJSONCommand extends Command {
       characters,
       loc,
       type,
-      findSymbolByName(this.payload.throughline),
+      findByName(this.payload.throughline),
       "",
       vmap);
 
@@ -369,27 +367,14 @@ class RemoveSceneTypeCommand extends Command {
 
 class UpdateModelFieldCommand extends Command {
   do(){
-    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
-      let pl = this.payload;
-      pl.oldValue = pl.model.fields.get(pl.fieldName);
-      pl.model.fields.set(pl.fieldName, pl.newValue);
-    }
-    else{
-      let pl = this.payload;
-      pl.oldValue = pl.model[pl.fieldName]
-      pl.model[pl.fieldName] = pl.newValue;
-    }
+    let pl = this.payload;
+    pl.oldValue = pl.model.fields.get(pl.fieldName);
+    pl.model.fields.set(pl.fieldName, pl.newValue);
   }
 
   undo() {
-    if (this.payload.model instanceof Character || this.payload.model instanceof Scene){
-      let pl = this.payload;
-      pl.model.fields.set(pl.fieldName, pl.oldValue);
-    }
-    else{
-      let pl = this.payload;
-      pl.model[pl.fieldName] = pl.oldValue;
-    }
+    let pl = this.payload;
+    pl.model.fields.set(pl.fieldName, pl.oldValue);
   }
 }
 

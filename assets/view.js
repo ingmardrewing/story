@@ -174,7 +174,6 @@ class ListItem {
   }
 
   renderJQuery() {
-    console.log(this.entity)
     let $item = $(`<div class="storyItem"></div>`);
     for (let action of ['select', 'edit', 'delete']) {
       $item.append(this.createButtonFor(action));
@@ -185,7 +184,8 @@ class ListItem {
   createButtonFor(action) {
     let label = action === 'select' ? this.entity.get("name"): action;
     let button = $(`<a class="${action}">${label}</a>`)
-    button.click(function(){ control[action](this.entity); });
+    let entity = this.entity;
+    button.click(function(){ control[action](entity); });
     return button;
   }
 }
@@ -443,10 +443,11 @@ class FieldView {
   }
 
   save() {
+    let value = $('#' + this.id).val();
     control.updateModelField(
       this.entity,
       this.dataField,
-      $('#' + this.id).val()
+      value
     );
   }
 }
@@ -464,7 +465,7 @@ class ImageView extends FieldView {
 
   assembleView() {
     if (this.fieldValue()){
-     return `<div class="imgContainer"><img src="${entity.image}"></div>`;
+     return `<div class="imgContainer"><img src="${this.fieldValue()}"></div>`;
     }
     return "";
   }
