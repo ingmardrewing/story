@@ -21,6 +21,7 @@ class Field {
   }
 }
 
+class Image extends Field {}
 class ShortText extends Field {}
 class LongText extends Field {}
 class SingleValueList extends Field {}
@@ -84,7 +85,7 @@ class Model {
     this.fields = new Map();
     this.fields.set(
       "image",
-      new ShortText(
+      new Image(
         "image",
         "Image",
         "The url of an image or the image as data url"));
@@ -183,7 +184,6 @@ class Model {
   }
 
   getSceneTypeByName(name) {
-    console.log(name, this.sceneTypes);
     for(let type of this.sceneTypes) {
       if (type.name === name) {
         return type;

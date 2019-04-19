@@ -10,6 +10,7 @@ function setup() {
   view = new View();
 
   createCanvas(view.w, view.h);
+  view.setupGui();
 
   let data = {
     name: "Red Riding Hood",
@@ -138,7 +139,6 @@ function setup() {
 
     model.story.scenes[0].active = true;
     view.updateSceneSprites();
-    view.setupGui();
     view.updateGui();
 }
 
