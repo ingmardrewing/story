@@ -10,6 +10,9 @@ font-weight: 300;
 		url('open-sans-v15-latin-ext_latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
 /*		url('open-sans-v15-latin-ext_latin-300.svg#OpenSans') format('svg'); /* Legacy iOS */
 }
+a {
+  cursor: pointer;
+}
 img {
   width: 100%;
   height: auto;
@@ -24,12 +27,22 @@ header {
   position: fixed;
   top: 0;
   left: 20px;
+
+}
+#logo {
+  display: inline-block;
   width: 150px;
   padding: 8px 0 12px;
   box-sizing: border-box;
   text-align: center;
   background-color: #FFAA00;
   color: #FFFFFF;
+}
+#navi {
+  display: inline-block;
+  width: 400px;
+  padding: 8px 10px 12px;
+  box-sizing: border-box;
 }
 h2 {
   font-family: 'Open Sans', Helvetica, Arial, sans-serif;
@@ -80,7 +93,6 @@ a:hover {
   background-color: #FFAA00;
 }
 .storyItem .select{
-  cursor: pointer;
 }
 .storyItem .select.active {
   color: #FFAA00;
@@ -89,12 +101,10 @@ a:hover {
   position: absolute;
   right: 55px;
   bottom: 9px;
-  cursor: pointer;
 }
 .storyItem .delete {
   position: absolute;
   right: 10px;
-  cursor: pointer;
 }
 .withImage {
   column-count: 2
@@ -141,7 +151,6 @@ a:hover {
   position: absolute;
   right: 20px;
   bottom: 20px;
-  cursor: pointer;
 }
 
 .overlay .save {
@@ -168,3 +177,4 @@ a:hover {
 .fieldLabel {
   width: 100px;
 }
+

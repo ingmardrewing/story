@@ -50,6 +50,7 @@ class  View {
     this.$guiCol2 = undefined;
     this.$guiCol3 = undefined;
     this.$guiCol4 = undefined;
+    this.$navi = undefined;
 
     this.w = 1200;
     this.h = 300;
@@ -97,6 +98,14 @@ class  View {
     }
     this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
+
+    let $readFileLink = $('<input type="file" id="input">');
+    $readFileLink.change(service.read);
+    $('#navi').append($readFileLink);
+
+    let $saveFileLink = $('<a>save</a>');
+    $saveFileLink.click(service.save);
+    $('#navi').append($saveFileLink);
   }
 
   updateGui() {

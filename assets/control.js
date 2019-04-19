@@ -1,4 +1,32 @@
 class Control {
+  showReadData(data){
+    model.story.name = data.name;
+    model.story.description = data.description;
+    model.initFields();
+
+    data.locations.forEach(function(location){
+      control.addLocation(location.name);
+    });
+
+    data.values.forEach(function(valueName){
+      control.addValue(valueName);
+    });
+
+    data.characters.forEach(function(params){
+      control.addCharacter(params);
+    });
+
+    view.scope = model.story.values.entries().next().value[0];
+
+    data.scenes.forEach(function(params){
+      control.addScene(params);
+    });
+
+    model.story.scenes[0].active = true;
+    view.updateSceneSprites();
+    view.updateGui();
+  }
+
   constructor() {
     this.characterCount = 0;
     this.locationCount = 0;
