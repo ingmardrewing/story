@@ -1,145 +1,17 @@
-let model, view, control, openSans;
+let service, model, view, control, openSans;
 
 function preload() {
   openSans = loadFont('assets/open-sans-v15-latin-ext_latin-300.ttf');
 }
 
 function setup() {
+  service = new Service();
   model = new Model();
   control = new Control();
   view = new View();
 
   createCanvas(view.w, view.h);
   view.setupGui();
-
-  let data = {
-    name: "Red Riding Hood",
-    description: "A food delivery service employee gets eaten by a wolf and reemerges from his belly once the wolf gets killed and cut open.",
-    locations:[
-      {name: "Forest", image: ""},
-      {name:"Granny's Home", image: ""}
-    ],
-    values:[
-      "Suspense",
-      "Life"
-    ],
-    characters:[
-      {
-        name: "Red Riding Hood",
-        archetype: "PROTAGONIST",
-      },
-      {
-        name: "Wolf",
-        archetype: "ANTAGONIST"
-      },
-      {
-        name: "Granny",
-        archetype: "REASON"
-      },
-      {
-        name: "Hunter",
-        archetype: "GUARDIAN"
-      }
-    ],
-    scenes: [
-      {
-        type: "Inciting Incident",
-        name: "Start delivery",
-        description: "...",
-        t: 0.2,
-        location: "Forest",
-        throughline: "Main Character",
-        values: {
-          "Suspense": 0.3,
-          "Life": 0.6
-        },
-        conflict: "RRH begins her travel in order to deliver the food",
-        characters: ["Red Riding Hood"]
-      },
-      {
-        type: "Regular Scene",
-        name: "A short intermission",
-        description: "...",
-        t: 0.3,
-        location: "Ad Space",
-        throughline: "Objective",
-        values: {
-          "Suspense": 0.7,
-          "Life": 0.4
-        },
-        conflict: "",
-        characters: []
-      },
-      {
-        type: "Regular Scene",
-        name: "Monologue of the wolf",
-        description: "...",
-        t: 0.4,
-        location: "Forest",
-        throughline: "Influence Character",
-        values: {
-          "Suspense": 0.4,
-          "Life": 0.7
-        },
-        conflict: "",
-        characters: ["Wolf"]
-      },
-      {
-        type: "Central Point",
-        name: "Wolf attacks",
-        description: "...",
-        t: 0.7,
-        location: "Forest",
-        throughline: "Relationship",
-        values: {
-          "Suspense": 0.7,
-          "Life": 0.3
-        },
-        conflict: "RRH wants to deliver food; Wolf eats her first.",
-        characters: ["Red Riding Hood", "Wolf"]
-      },
-      {
-        type: "Climax",
-        name: "Hunter guts wolf",
-        description: "...",
-        t: 0.8,
-        location: "Granny's Home",
-        throughline: "Relationship",
-        values: {
-          "Suspense": 0.4,
-          "Life": 0.7
-        },
-        conflict: "Wolf wants to stay alive; Hunter cuts wolf open",
-        characters: ["Hunter", "Wolf", "Granny", "Red Riding Hood"]
-      }
-    ],
-  } ;
-
-    model.story.name = data.name;
-    model.story.description = data.description;
-    model.initFields();
-
-    data.locations.forEach(function(location){
-      control.addLocation(location.name);
-    });
-
-    data.values.forEach(function(valueName){
-      control.addValue(valueName);
-    });
-
-    data.characters.forEach(function(params){
-      control.addCharacter(params);
-    });
-
-    view.scope = model.story.values.entries().next().value[0];
-
-    data.scenes.forEach(function(params){
-      control.addScene(params);
-    });
-
-    model.story.scenes[0].active = true;
-    view.updateSceneSprites();
-    view.updateGui();
 }
 
 function draw() {

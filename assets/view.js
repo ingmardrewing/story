@@ -50,6 +50,7 @@ class  View {
     this.$guiCol2 = undefined;
     this.$guiCol3 = undefined;
     this.$guiCol4 = undefined;
+    this.$navi = undefined;
 
     this.w = 1200;
     this.h = 300;
@@ -97,6 +98,14 @@ class  View {
     }
     this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
+
+    let $readFileLink = $('<input type="file" id="input">');
+    $readFileLink.change(service.read);
+    $('#navi').append($readFileLink);
+
+    let $saveFileLink = $('<a>save</a>');
+    $saveFileLink.click(service.save);
+    $('#navi').append($saveFileLink);
   }
 
   updateGui() {
@@ -315,17 +324,24 @@ class DetailView {
   }
 
   createHeadline(){
-    this.$htmlParent.append(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.name}</h2>`);
+    this.$htmlParent.append(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.get('name')}</h2>`);
   }
 
   createContent() {
     let $storyItem = $(`<div class="storyItem"></div>`);
     let c = 0;
     let e = this.entity;
+
     e.fields.forEach(function(v, fieldType ){
       let id = "viewField_" + c++;
       let fv = FieldViewFactory.makeFormField(id, fieldType, e);
-      $storyItem.append(fv.assembleView());
+      if ( fieldType.name === 'image'){
+        $storyItem.prepend(fv.assembleView());
+        $storyItem.addClass("withImage");
+      }
+      else {
+        $storyItem.append(fv.assembleView());
+      }
     });
 
     let $link = $(`<a class="edit">edit</a>`);
@@ -460,7 +476,7 @@ class ShortTextView extends FieldView {
 
 class ImageView extends FieldView {
   assembleInput(){
-    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.fieldValue()}" />`;
+    return `<input class="formInput" name="${this.id}" id="${this.id}" type="text" value="${this.fieldValue() || ''}" />`;
   }
 
   assembleView() {
