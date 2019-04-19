@@ -96,6 +96,12 @@ a:hover {
   right: 10px;
   cursor: pointer;
 }
+.withImage {
+  column-count: 2
+}
+.withImage:first-child{
+  break-after: always;
+}
 .detailView div.storyItem {
   line-height: 28px;
 }
