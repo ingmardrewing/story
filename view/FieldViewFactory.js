@@ -6,6 +6,9 @@ import MultipleValueListView from './MultipleValueListView.js';
 
 export default class FieldViewFactory {
   static makeFormField(id, dataField, entity, control) {
+    if (!control){
+      console.error("Control is missing!");
+    }
     switch(dataField.constructor.name){
       case "Image": {
         return new ImageView( id, dataField, entity, control );

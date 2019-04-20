@@ -63,7 +63,6 @@ export default class ModalDialogue {
 
   removeOverlay() {
     this.$overlay.remove();
-    loop();
   }
 
   save(){

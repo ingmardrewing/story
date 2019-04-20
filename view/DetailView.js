@@ -24,10 +24,11 @@ export default class DetailView {
     let $storyItem = $(`<div class="storyItem"></div>`);
     let c = 0;
     let e = this.entity;
+    let control = this.control;
 
     e.fields.forEach(function(v, fieldType ){
       let id = "viewField_" + c++;
-      let fv = FieldViewFactory.makeFormField(id, fieldType, e);
+      let fv = FieldViewFactory.makeFormField(id, fieldType, e, control);
       if ( fieldType.name === 'image'){
         $storyItem.prepend(fv.assembleView());
         $storyItem.addClass("withImage");
@@ -38,7 +39,6 @@ export default class DetailView {
     });
 
     let $link = $(`<a class="edit">edit</a>`);
-    let control = this.control;
     $link.click(function(){ control.edit(e); });
     $storyItem.append($link);
 

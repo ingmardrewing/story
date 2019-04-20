@@ -1,3 +1,4 @@
+import * as $ from 'jquery';
 import CommandQueue from './CommandQueue.js';
 import AddValueCommand from './AddValueCommand.js';
 import DeleteValueCommand from './DeleteValueCommand.js';
@@ -141,8 +142,8 @@ export default class Control {
     let md = new ModalDialogue(
       `Edit ${entity.constructor.name}`,
       $('body'),
-      entity
-    );
+      entity,
+      this);
     md.open();
   }
 
@@ -167,9 +168,9 @@ export default class Control {
     let params  = this.getParams();
     params.scene= scene;
     params.oldT = scene.t;
-    params.oldY = scene.values.get(view.scope);
-    params.newT = x / view.w;
-    params.newY = y / view.h;
+    params.oldY = scene.values.get(this.view.scope);
+    params.newT = x / this.view.w;
+    params.newY = y / this.view.h;
 
     this.commandQueue.addCommand(new MoveSceneCommand(params));
   }
