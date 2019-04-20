@@ -43,7 +43,10 @@ export default class SingleValueListView extends FieldView {
 
   assembleView() {
     if(this.fieldValue()) {
-      //return this.layout(this.dataField.label, this.fieldValue().get("name"));
+      let val = this.fieldValue().get ? this.fieldValue().get("name") : '';
+      if (val){
+        return this.layout(this.dataField.label, val);
+      }
     }
     return '';
   }

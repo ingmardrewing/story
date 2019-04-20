@@ -152,13 +152,17 @@ export default class Control {
   }
 
   addScene (data) {
-    console.log("adding scene", this);
     let params = this.getParams();
     params.characters = data.characters;
     params.locations = data.locations;
     params.type = data.type;
     params.values = data.values;
     params.throughlines = data.throughlines;
+    params.t = data.t;
+    params.name = data.name;
+    params.description = data.description;
+    params.conflict = data.conflict;
+    params.image = data.image;
     this.commandQueue.addCommand(
       new AddSceneCommand(params)
     );
@@ -176,7 +180,6 @@ export default class Control {
   }
 
   removeSceneTypeFromScenes(sym) {
-    console.log(this);
     for (let s of this.model.story.scenes) {
       if(s.type === sym) {
         let params = this.getParams()
@@ -187,7 +190,6 @@ export default class Control {
   }
 
   updateModelField(currentEntity, entityFieldName, newValue) {
-    console.log(this)
     let params = this.getParams();
     params.entity = currentEntity;
     params.fieldName = entityFieldName;

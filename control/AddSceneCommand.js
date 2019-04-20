@@ -17,10 +17,8 @@ export default class AddSceneCommand extends Command {
 
     let self = this;
 
-    console.log(self.payload)
     this.payload.model.story.values
       .forEach(function(k, v){
-        console.log(v.get("name"));
         vmap.set(v, self.payload.values[v.get("name")] )
       });
 

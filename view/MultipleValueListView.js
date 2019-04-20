@@ -17,7 +17,7 @@ export default class MultipleValueListView extends FieldView {
 
   assembleView() {
     let values = this.fieldValue();
-    if (values) {
+    if (values && values.length > 0) {
       let names = [];
       for (let v of values) {
         names.push(v.get("name"));

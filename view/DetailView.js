@@ -29,9 +29,11 @@ export default class DetailView {
     e.fields.forEach(function(v, fieldType ){
       let id = "viewField_" + c++;
       let fv = FieldViewFactory.makeFormField(id, fieldType, e, control);
-      if ( fieldType.name === 'image'){
+      if (fieldType.name === 'image'){
         $storyItem.prepend(fv.assembleView());
-        $storyItem.addClass("withImage");
+        if(v){
+          $storyItem.addClass("withImage");
+        }
       }
       else {
         $storyItem.append(fv.assembleView());

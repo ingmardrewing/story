@@ -1,6 +1,5 @@
 export default class Service {
   read(event) {
-    console.log(event);
     let reader = new FileReader();
     let service = this;
     reader.onload = function(e){
@@ -16,7 +15,6 @@ export default class Service {
   readJson(event){
     try{
       let json = JSON.parse(event.target.result);
-      console.log(json);
       this.control.showReadData(json);
     }
     catch(ex){
