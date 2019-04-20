@@ -8,7 +8,9 @@ export default class MultipleValueListView extends FieldView {
 
     this.dataField.characteristic.forEach(function(v, k, m){
       let checked = preselected.includes(v) ? ` checked="checked"` : '';
-      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.get("name")}</label></div>`
+			if (v.get("name")) {
+				html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.get("name")}</label></div>`
+			}
     });
     html += `</div>`;
 
