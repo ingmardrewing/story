@@ -1,0 +1,43 @@
+import * as $ from 'jquery'
+import FieldView from './FieldView.js'
+
+export default class MultipleValueListView extends FieldView {
+  assembleInput(){
+    let html = `<div>`;
+    let preselected = this.fieldValue();
+
+    this.dataField.characteristic.forEach(function(v, k, m){
+      let checked = preselected.includes(v) ? ` checked="checked"` : '';
+      html += `<div style="display:inline-block; margin-right: 10px; margin-bottom: 10px;"><input id="${v.id}" type="checkbox" name="${v.id}" value="${v.id}"${checked}><label for="${v.id}">${v.get("name")}</label></div>`
+    });
+    html += `</div>`;
+
+    return html;
+  }
+
+  assembleView() {
+    let values = this.fieldValue();
+    if (values) {
+      let names = [];
+      for (let v of values) {
+        names.push(v.get("name"));
+      }
+      return this.layout(this.dataField.label, names.join(', '));
+    }
+    return "";
+  }
+
+  save () {
+    let newCharacters = [];
+    this.dataField.characteristic.forEach(function(v, k, m){
+      if($('#' + v.id).prop("checked")){
+        newCharacters.push(v);
+      }
+    });
+    this.control.updateModelField(
+      this.entity,
+      this.dataField,
+      newCharacters
+    );
+  }
+}
