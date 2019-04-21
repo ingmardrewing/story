@@ -36,25 +36,52 @@ header {
   box-sizing: border-box;
   text-align: center;
   background-color: #FFAA00;
+  border: 1px solid #FFAA00;
   color: #FFFFFF;
 }
 #navi {
   display: inline-block;
   width: 400px;
-  padding: 8px 10px 12px;
   box-sizing: border-box;
+  background-color: #FFFFFF;
+  border: 1px solid #AAAAAA;
+  border-top: 0;
+  border-left: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 9px;
+  padding-bottom: 11px;
+  margin-left: -5px;
 }
-h2 {
+.mainNavi + .mainNavi {
+  margin-left: 20px;
+}
+h2{
+  background-color: #AAAAAA;
   font-family: 'Open Sans', Helvetica, Arial, sans-serif;
   font-size: 16px;
   font-weight: 300;
   color: #FFFFFF;
-  background-color: #AAAAAA;
   padding: 5px;
+}
+h2 .edit,
+h2 .delete {
+  color: #FFFFFF;
 }
 h2:first-child {
   margin-top: 0;
 }
+h2.storyItem .edit{
+  right: 55px;
+  top: 7px;
+  bottom: auto;
+}
+h2.storyItem .delete{
+  right: 10px;
+  top: 7px;
+  bottom: auto;
+}
+
 canvas {
   border: 1px solid #AAAAAA;
   margin: 20px;
@@ -115,14 +142,6 @@ a:hover {
 .detailView div.storyItem {
   line-height: 28px;
 }
-.detailView .storyItem .edit{
-  right: 60px;
-  top: 3px;
-}
-.detailView .storyItem .delete{
-  right: 10px;
-  top: 3px;
-}
 
 
 .overlay {
@@ -145,6 +164,7 @@ a:hover {
   background-color: #FFFFFF;
   box-sizing: border-box;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .overlay .close,
@@ -183,6 +203,4 @@ a:hover {
   width: 100px;
 }
 
-.mainNavi {
-  margin-left: 20px;
-}
+

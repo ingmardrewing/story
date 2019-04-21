@@ -37,6 +37,7 @@ export default class Story {
   }
 
   getCharacterByName(charName) {
+    console.log(this.characters, charName)
     return this.lookUp(this.characters, charName);
   }
 
@@ -50,7 +51,7 @@ export default class Story {
 
   lookUp(list, name) {
    for (let item of list) {
-      if(name === list.name) {
+      if(name === item.get("name")) {
         return item;
       }
     }

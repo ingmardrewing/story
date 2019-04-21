@@ -109,10 +109,6 @@ export default class View {
     this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
 
-    let $readFileLink = $('<input type="file" id="input">');
-    $readFileLink.change(this.control.getLoadChangeListener());
-    $('#navi').append($readFileLink);
-
     let $saveFileLink = $('<a>save</a>');
     $saveFileLink.addClass("mainNavi"),
     $saveFileLink.click(this.control.getSaveListener());
@@ -128,6 +124,11 @@ export default class View {
       c.view.updateDetailView();
     });
     $('#navi').append($clearLink);
+
+    let $readFileLink = $('<input type="file" id="input">');
+    $readFileLink.addClass("mainNavi");
+    $readFileLink.change(this.control.getLoadChangeListener());
+    $('#navi').append($readFileLink);
   }
 
   updateGui() {

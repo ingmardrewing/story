@@ -300,9 +300,11 @@ export default class Control {
 			})
 
       let location = "";
-      if (s.get("location") && s.get("loaction") instanceof Location){
+      if (s.get("location") && s.get("location") instanceof Location){
+        console.log(s.get("location"))
         location = s.get("location").get("name");
       }
+
 			jsn.scenes.push({
         characters: characters,
 				name: s.get("name"),

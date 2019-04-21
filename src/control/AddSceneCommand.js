@@ -4,7 +4,7 @@ import Scene from '../model/Scene.js';
 export default class AddSceneCommand extends Command {
   do() {
     let characters = [];
-    for (let charName in this.payload.characters) {
+    for (let charName of this.payload.characters) {
       let char = this.payload.model.story.getCharacterByName(charName);
       if(char) {
         characters.push(char);

@@ -17,7 +17,17 @@ export default class DetailView {
   }
 
   createHeadline(){
-    this.$htmlParent.append(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.get('name')}</h2>`);
+    let $headlineContainer = $(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.get('name')}</h2>`);
+
+    let $delete = $(`<a class="delete">delete</a>`);
+    $delete.click(function(){ control.delete(e); });
+    $headlineContainer.append($delete);
+
+    let $edit= $(`<a class="edit">edit</a>`);
+    $edit.click(function(){ control.edit(e); });
+    $headlineContainer.append($edit);
+
+    this.$htmlParent.append($headlineContainer);
   }
 
   createContent() {
@@ -39,15 +49,6 @@ export default class DetailView {
         $storyItem.append(fv.assembleView());
       }
     });
-
-
-    let $delete = $(`<a class="delete">delete</a>`);
-    $delete.click(function(){ control.delete(e); });
-    $storyItem.append($delete);
-
-    let $edit= $(`<a class="edit">edit</a>`);
-    $edit.click(function(){ control.edit(e); });
-    $storyItem.append($edit);
 
     this.$htmlParent.append($storyItem);
   }
