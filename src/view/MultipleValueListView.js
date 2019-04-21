@@ -6,6 +6,7 @@ export default class MultipleValueListView extends FieldView {
     let html = `<div>`;
     let preselected = this.fieldValue();
 
+    console.log(this.dataField, this.dataField.characteristic);
     this.dataField.characteristic.forEach(function(v, k, m){
       let checked = preselected.includes(v) ? ` checked="checked"` : '';
 			if (v.get("name")) {

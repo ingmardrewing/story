@@ -47,6 +47,8 @@ export default class Service {
   save(jsn) {
     var blob = new Blob([JSON.stringify(jsn)], {type: "text/plain;charset=utf-8"});
     var filename = prompt("Which filename shall we use?", "story") + ".json";
-    saveAs(blob, filename);
+    if (filename && filename !== "null"){
+      saveAs(blob, filename);
+    }
   }
 }
