@@ -53,6 +53,9 @@ export default class Control {
   }
 
   addValue(valueName) {
+    if(this.model.story.getValueByName(valueName)) {
+      return;
+    }
     let params = this.getParams();
     params.valueName = valueName ? valueName : "New Value";
     this.commandQueue.addCommand(new AddValueCommand(params));
@@ -156,6 +159,7 @@ export default class Control {
     let params = this.getParams();
     if (data){
       params.characters = data.characters;
+      params.image = data.image;
       params.location = data.location;
       params.type = data.type;
       params.values = data.values;
@@ -164,7 +168,6 @@ export default class Control {
       params.name = data.name;
       params.description = data.description;
       params.conflict = data.conflict;
-      params.image = data.image;
     }
     this.commandQueue.addCommand( new AddSceneCommand(params));
   }
@@ -329,19 +332,20 @@ export default class Control {
     // clear command queue
     this.commandQueue.clear();
 
-    // clear model
-    this.clearModel();
+    // create minimum config
+    this.createMinimumConfig();
   }
 
-  clearModel() {
+  createMinimumConfig() {
     this.model.story = new Story("New Story", "...", this.model);
+    this.addValue("Suspense");
   }
 
   showReadData(data){
     this.clearData();
 
-    this.model.story.name = data.name;
-    this.model.story.description = data.description;
+    this.model.story.set("name", data.name)
+    this.model.story.set("description", data.description);
     this.model.initFields();
     var c = this;
 

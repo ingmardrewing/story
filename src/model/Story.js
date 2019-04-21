@@ -16,8 +16,14 @@ export default class Story extends FieldContainer {
     this.values.set(storyValue, 0.5);
   }
 
-  getStoryValueByName(valName) {
-    return this.lookUp(this.values, valName);
+  getValueByName(name) {
+    let r = false;
+    this.values.forEach(function(v, k){
+     if( k.get("name") === name ){
+       r = true;
+      }
+    });
+    return r;
   }
 
   addLocation(location) {
@@ -52,7 +58,7 @@ export default class Story extends FieldContainer {
 
   lookUp(list, name) {
    for (let item of list) {
-      if(name === item.get("name")) {
+      if(item.get && name === item.get("name")) {
         return item;
       }
     }

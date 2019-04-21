@@ -15,6 +15,7 @@ export default class Scene extends FieldContainer{
     this.t = params.t || 0.5;
 
     this.set("name", params.name);
+    this.set("image", params.image);
     this.set("description", params.description);
     this.set("conflict", params.conflict);
     this.set("methodology", params.methodology);
@@ -27,7 +28,6 @@ export default class Scene extends FieldContainer{
     this.set("location", location );
     this.set("type", type || model.sceneTypes[0]);
     this.set("throughline", throughline || "");
-    this.set("image", image || "");
     this.values = values || new Map();
   }
 

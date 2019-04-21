@@ -1,5 +1,6 @@
 import * as $ from 'jquery'
 import ListItem from './ListItem.js';
+import ListItemConst from './ListItemConst.js';
 
 export default class List {
   constructor($container, headline, entities, addLabel, addFunction, control){
@@ -25,7 +26,14 @@ export default class List {
     let $c = this.$container;
     let control = this.control;
     this.entities.forEach(function(k,v){
-      let l = new ListItem(v.get ? v : k, control);
+      let obj = v.get ? v : k;
+      let l;
+      if (obj.get("name") === "Suspense"){
+        l = new ListItemConst(obj, control);
+      }
+      else {
+        l = new ListItem(obj, control);
+      }
       $c.append(l.renderJQuery());
     });
   }

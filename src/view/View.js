@@ -7,7 +7,9 @@ import ClimaxRestriction from './ClimaxRestriction.js';
 import RegularRestriction from './RegularRestriction.js';
 import SceneSprite from './SceneSprite.js';
 import DetailView from './DetailView.js';
+import DetailViewConst from './DetailViewConst.js';
 import List from './List.js';
+import MainNavi from './MainNavi.js';
 
 export default class View {
   constructor(model, control){
@@ -108,27 +110,6 @@ export default class View {
     }
     this.$guiCol1.addClass("detailView");
     $("body").append(this.$guiContainer);
-
-    let $saveFileLink = $('<a>save</a>');
-    $saveFileLink.addClass("mainNavi"),
-    $saveFileLink.click(this.control.getSaveListener());
-    $('#navi').append($saveFileLink);
-
-    let $clearLink = $('<a>clear</a>');
-    $clearLink.addClass("mainNavi");
-    let c = this.control;
-    $clearLink.click( function() {
-      c.clearData();
-      c.view.updateGui();
-      c.view.updateSceneSprites();
-      c.view.updateDetailView();
-    });
-    $('#navi').append($clearLink);
-
-    let $readFileLink = $('<input type="file" id="input">');
-    $readFileLink.addClass("mainNavi");
-    $readFileLink.change(this.control.getLoadChangeListener());
-    $('#navi').append($readFileLink);
   }
 
   updateGui() {
@@ -161,12 +142,21 @@ export default class View {
       this.control.addLocation,
       this.control);
     locations.render();
+
+    let mainNavi = new MainNavi(this, $("#navi"));
+    mainNavi.render();
   }
 
   updateDetailView(entity) {
     this.$guiCol1.empty();
     this.detailViewEntity = entity;
-    let v = new DetailView(this.$guiCol1, entity, this.control);
+    let v;
+    if (entity && entity.get && entity.get("name") === "Suspense"){
+      v = new DetailViewConst(this.$guiCol1, entity, this.control);
+    }
+    else {
+      v = new DetailView(this.$guiCol1, entity, this.control);
+    }
     v.display();
   }
 }
