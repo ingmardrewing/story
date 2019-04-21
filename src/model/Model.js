@@ -16,7 +16,8 @@ export default class Model {
       PLOT_POINT_2: "Plot Point 2",
       CLIMAX: "Climax"
     }
-    this.story = new Story();
+    this.initGenericFields();
+    this.story = new Story("New Story", "...", this);
     this.initLists();
   }
 
@@ -48,7 +49,7 @@ export default class Model {
     ];
   }
 
-  initFields() {
+  initGenericFields() {
     this.fields = new Map();
     this.fields.set(
       "image",
@@ -74,7 +75,10 @@ export default class Model {
         "conflict",
         "Conflict",
         "The conflict shown within the scene"));
-    this.fields.set(
+  }
+
+  initFields() {
+        this.fields.set(
       "type",
       new SingleValueList(
         "type",

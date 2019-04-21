@@ -261,8 +261,8 @@ export default class Control {
 
 	getStoryAsJson() {
 		let jsn = {
-			name: this.model.story.name,
-			description: this.model.story.description,
+			name: this.model.story.get("name"),
+			description: this.model.story.get("description"),
 			locations: [],
 			characters: [],
 			values: [],
@@ -301,7 +301,6 @@ export default class Control {
 
       let location = "";
       if (s.get("location") && s.get("location") instanceof Location){
-        console.log(s.get("location"))
         location = s.get("location").get("name");
       }
 
@@ -335,7 +334,7 @@ export default class Control {
   }
 
   clearModel() {
-    this.model.story = new Story();
+    this.model.story = new Story("New Story", "...", this.model);
   }
 
   showReadData(data){
@@ -367,5 +366,6 @@ export default class Control {
     this.model.story.scenes[0].active = true;
     this.view.updateSceneSprites();
     this.view.updateGui();
+    this.view.updateDetailView(this.view.getActiveScene());
   }
 }

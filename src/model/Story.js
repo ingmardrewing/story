@@ -1,7 +1,10 @@
-export default class Story {
-  constructor(){
-    this.name = "";
-    this.description = "";
+import FieldContainer from './FieldContainer.js';
+
+export default class Story extends FieldContainer {
+  constructor(name, description, model){
+    super(model);
+    this.set("name", name);
+    this.set("description", description);
 
     this.scenes = [];
     this.characters = [];
@@ -24,7 +27,6 @@ export default class Story {
   getLocationByName(locName){
     let loc;
     this.locations.forEach(function(v, l){
-      console.log(v, l)
       if(l.get("name") === locName){
         loc = l;
       }
@@ -37,7 +39,6 @@ export default class Story {
   }
 
   getCharacterByName(charName) {
-    console.log(this.characters, charName)
     return this.lookUp(this.characters, charName);
   }
 
