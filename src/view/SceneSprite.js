@@ -13,11 +13,7 @@ export default class SceneSprite {
   }
 
   hasArrived() {
-    let arr = this.destX == this.x && this.destY == this.y;
-    if(!arr) {
-      console.log(this.destX, this.x, this.destY, this.y);
-    }
-    return arr;
+    return this.destX == this.x && this.destY == this.y;
   }
 
   setPosition(x, y) {
