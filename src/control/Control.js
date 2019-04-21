@@ -14,6 +14,7 @@ import UpdateModelFieldCommand from './UpdateModelFieldCommand.js';
 import ModalDialogue from '../view/ModalDialogue.js';
 import Params from './Params.js';
 import Story from '../model/Story.js';
+import Location from '../model/Location.js';
 
 export default class Control {
   constructor(model, service) {
@@ -141,10 +142,12 @@ export default class Control {
     this.characterCount += 1;
   }
 
-  addLocation(locationName) {
+  addLocation(data) {
     let params = this.getParams();
-    params.name = locationName ? locationName : "New Location";
+    params.name = data.name ? data.name : "New Location";
     params.id = "location_" + this.locationCount++;
+    params.image = data.image;
+    params.description = data.description;
 
     this.commandQueue.addCommand(new AddLocationCommand(params));
   }
@@ -153,7 +156,7 @@ export default class Control {
     let params = this.getParams();
     if (data){
       params.characters = data.characters;
-      params.locations = data.locations;
+      params.location = data.location;
       params.type = data.type;
       params.values = data.values;
       params.throughlines = data.throughlines;
@@ -288,22 +291,28 @@ export default class Control {
 
 		this.model.story.scenes.forEach((s, k) => {
 			let characters = [];
-      console.log(k,s.get("characters"));
 			s.get("characters").forEach((v, l) => {
-        console.log(v,l);
-        //	characters.push(c.get("name"));
+        characters.push(v.get("name"));
 			});
 			let values = {};
 			s.values.forEach((v, l) => {
-        values[l.get(name)] = v;
+        values[l.get("name")] = v;
 			})
+
+      let location = "";
+      if (s.get("location") && s.get("loaction") instanceof Location){
+        location = s.get("location").get("name");
+      }
 			jsn.scenes.push({
+        characters: characters,
 				name: s.get("name"),
+        conflict: s.get("conflict"),
 				description: s.get("description"),
-				location: s.get("location").name,
+				location: location,
 				t: s.t,
-				type: s.get("type"),
-        image: s.get("image")
+				type: s.get("type").get("name"),
+        image: s.get("image"),
+        values: values
 			});
 		});
 
@@ -336,7 +345,7 @@ export default class Control {
     var c = this;
 
     data.locations.forEach(function(location){
-      c.addLocation(location.name);
+      c.addLocation(location);
     });
 
     data.values.forEach(function(valueName){

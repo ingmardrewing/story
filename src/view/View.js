@@ -48,7 +48,6 @@ export default class View {
   }
 
   getRestriction(sceneType) {
-    //console.log(sceneType);
     let m = this.model
     switch(sceneType.name) {
       case m.sceneTypeNames.INCITING_INCIDENT:{
@@ -124,9 +123,9 @@ export default class View {
     let c = this.control;
     $clearLink.click( function() {
       c.clearData();
-      console.log(c.model);
       c.view.updateGui();
       c.view.updateSceneSprites();
+      c.view.updateDetailView();
     });
     $('#navi').append($clearLink);
   }

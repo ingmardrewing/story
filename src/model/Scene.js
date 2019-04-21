@@ -13,15 +13,22 @@ export default class Scene extends FieldContainer{
 
     this.active = false;
     this.t = params.t || 0.5;
-    this.values = values || new Map();
 
     this.set("name", params.name);
     this.set("description", params.description);
-    this.set("conflict", params.description);
-    this.set("location", location );
+    this.set("conflict", params.conflict);
+    this.set("methodology", params.methodology);
+    this.set("evaluation", params.evaluation);
+    this.set("purpose", params.purpose);
+    this.set("motivation", params.motivation);
+    this.set("biography", params.biography);
+
     this.set("characters", characters || []);
+    this.set("location", location );
     this.set("type", type || model.sceneTypes[0]);
+    this.set("throughline", throughline || "");
     this.set("image", image || "");
+    this.values = values || new Map();
   }
 
   addCharacter(char) {

@@ -33,7 +33,6 @@ export default class ModalDialogue {
 
     for (let f of this.fields) {
 			let html = f.assembleHtml();
-			console.log(html);
 			$div.append(html);
     }
   }

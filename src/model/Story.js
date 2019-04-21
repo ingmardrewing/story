@@ -23,9 +23,10 @@ export default class Story {
 
   getLocationByName(locName){
     let loc;
-    this.locations.forEach(function(v){
-      if(v.name === locName){
-        loc = v;
+    this.locations.forEach(function(v, l){
+      console.log(v, l)
+      if(l.get("name") === locName){
+        loc = l;
       }
     });
     return loc;
