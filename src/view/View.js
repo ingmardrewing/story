@@ -48,6 +48,7 @@ export default class View {
   }
 
   getRestriction(sceneType) {
+    //console.log(sceneType);
     let m = this.model
     switch(sceneType.name) {
       case m.sceneTypeNames.INCITING_INCIDENT:{
@@ -114,8 +115,20 @@ export default class View {
     $('#navi').append($readFileLink);
 
     let $saveFileLink = $('<a>save</a>');
+    $saveFileLink.addClass("mainNavi"),
     $saveFileLink.click(this.control.getSaveListener());
     $('#navi').append($saveFileLink);
+
+    let $clearLink = $('<a>clear</a>');
+    $clearLink.addClass("mainNavi");
+    let c = this.control;
+    $clearLink.click( function() {
+      c.clearData();
+      console.log(c.model);
+      c.view.updateGui();
+      c.view.updateSceneSprites();
+    });
+    $('#navi').append($clearLink);
   }
 
   updateGui() {

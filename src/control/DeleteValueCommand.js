@@ -8,6 +8,7 @@ export default class DeleteValueCommand extends Command {
       this.s2vmap.set(s, s.values.get(this.payload.value))
       s.values.delete(this.payload.value);
     }
+    this.payload.view.updateDetailView();
   }
 
   undo() {
@@ -15,6 +16,7 @@ export default class DeleteValueCommand extends Command {
     for (let s of this.payload.model.story.scenes) {
       s.values.set(this.payload.value, this.s2vmap.get(s))
     }
+    this.payload.view.updateDetailView();
   }
 }
 

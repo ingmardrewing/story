@@ -6,12 +6,18 @@ export default class CommandQueue {
     this.view = view;
   }
 
+  clear(){
+    this.queue = [];
+    this.history = [];
+  }
+
   addCommand(command) {
     this.history = [];
     this.queue = [];
     this.do(command);
     this.view.updateSceneSprites();
-    this.view.update()
+    this.view.updateGui();
+    this.view.update();
   }
 
   do(cmd) {

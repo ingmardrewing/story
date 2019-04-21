@@ -27,19 +27,23 @@ export default class ModalDialogue {
   }
 
   assembleForm() {
-    this.form = `<form class="overlayForm"><div class="formGrid">`;
+		let $div = $(`<div class="formGrid">`);
+		this.$form = $(`<form class="overlayForm">`);
+		this.$form.append($div);
+
     for (let f of this.fields) {
-      this.form += f.assembleHtml();
+			let html = f.assembleHtml();
+			console.log(html);
+			$div.append(html);
     }
-    this.form += `</div></form>`;
   }
 
   assembleOverlay() {
     let self = this;
     let $container = $(`<div class="formContainer">
       <h2>${this.name}</h2>
-      ${this.form}
     </div>`);
+		$container.append(this.$form);
 
     let $close = $(`<a class="close">cancel</a>`);
     $close.click(function(){

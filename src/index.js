@@ -23,6 +23,7 @@ let s = (sk) => {
 
     sk.createCanvas(view.w, view.h);
     view.setupGui();
+		control.init();
   }
   sk.draw = () => {
     sk.clear();

@@ -33,7 +33,11 @@ export default class List {
   createAdd(){
     let $btn = $(`<a class="storyItem storyItemAdd">${this.addLabel}</a>`)
     let control = this.control;
-    $btn.click(this.addFunction.call(control));
+    let addFn = this.addFunction;
+    $btn.click(function(){
+      addFn.call(control);
+    });
+
     this.$container.append($btn);
   };
 }

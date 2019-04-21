@@ -40,9 +40,14 @@ export default class DetailView {
       }
     });
 
-    let $link = $(`<a class="edit">edit</a>`);
-    $link.click(function(){ control.edit(e); });
-    $storyItem.append($link);
+
+    let $delete = $(`<a class="delete">delete</a>`);
+    $delete.click(function(){ control.delete(e); });
+    $storyItem.append($delete);
+
+    let $edit= $(`<a class="edit">edit</a>`);
+    $edit.click(function(){ control.edit(e); });
+    $storyItem.append($edit);
 
     this.$htmlParent.append($storyItem);
   }
