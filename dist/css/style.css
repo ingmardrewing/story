@@ -40,8 +40,9 @@ header {
   color: #FFFFFF;
 }
 #navi {
+  text-align: right;
   display: inline-block;
-  width: 400px;
+  width: 1050px;
   box-sizing: border-box;
   background-color: #FFFFFF;
   border: 1px solid #AAAAAA;
@@ -55,6 +56,38 @@ header {
 }
 .mainNavi + .mainNavi {
   margin-left: 20px;
+}
+.storyTitle {
+  position: fixed;
+  left: 185px;
+  top: 10px;
+  text-align: left;
+  display: inline-block;
+  margin: 0;
+  color: #000000;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  cursor: pointer;
+}
+.storyDescription {
+  position: fixed;
+  left: 168px;
+  top: 39px;
+  width: 300px;
+  font-size: 12px;
+  margin: 0;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  background-color: #FFFFFF;
+  border: 1px solid #AAAAAA;
+  color: #000000;
+  border-top: 0px;
+  box-sizing: border-box;
+  padding: 10px;
+  display: none;
+}
+.storyTitle:hover .storyDescription {
+  display: block;
 }
 h2{
   background-color: #AAAAAA;

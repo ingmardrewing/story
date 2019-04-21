@@ -159,4 +159,16 @@ export default class View {
     }
     v.display();
   }
+
+  checkLoopNecessity(sk){
+    let necessary = false;
+    this.sceneSprites.forEach((s, k) => {
+      if(! s.hasArrived()) {
+        necessary = true;
+      }
+    });
+    if (!necessary){
+      sk.noLoop();
+    }
+  }
 }

@@ -12,6 +12,14 @@ export default class SceneSprite {
     this.dragged = false;
   }
 
+  hasArrived() {
+    let arr = this.destX == this.x && this.destY == this.y;
+    if(!arr) {
+      console.log(this.destX, this.x, this.destY, this.y);
+    }
+    return arr;
+  }
+
   setPosition(x, y) {
     let view = this.view;
     this.x = x < this.restriction.lowerLimit * view.w ? this.restriction.lowerLimit * view.w
@@ -42,9 +50,10 @@ export default class SceneSprite {
   }
 
   approxPosition() {
-    this.setPosition(
-      this.x + (this.destX - this.x) / 4,
-      this.y + (this.destY - this.y) / 4
-    );
+    let newX = this.x + (this.destX - this.x) / 4;
+    let newY = this.y + (this.destY - this.y) / 4;
+    newX = Math.abs(newX - this.x) < 0.5 ? this.destX : newX ;
+    newY = Math.abs(newY - this.y) < 0.5 ? this.destY : newY ;
+    this.setPosition( newX, newY);
   }
 }

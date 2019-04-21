@@ -12,6 +12,7 @@ let s = (sk) => {
   sk.preload = () => {
     openSans = sk.loadFont('./fonts/open-sans-v15-latin-ext_latin-300.ttf');
   }
+
   sk.setup = () => {
     service = new Service();
     model = new Model();
@@ -25,6 +26,7 @@ let s = (sk) => {
     view.setupGui();
 		control.init();
   }
+
   sk.draw = () => {
     sk.clear();
     sk.stroke(102);
@@ -76,8 +78,11 @@ let s = (sk) => {
         }
       }
     }
+    view.checkLoopNecessity(sk);
   }
+
   sk.mousePressed = (e) => {
+    sk.loop();
   if( $('.overlay').length > 0 ) {
       return ;
     }
@@ -102,6 +107,7 @@ let s = (sk) => {
     }
   }
   sk.mouseDragged = (e) => {
+    sk.loop();
    if( $('.overlay').length > 0 ) { return false; }
     for (let s of view.sceneSprites) {
       if (s.dragged) {
@@ -110,6 +116,7 @@ let s = (sk) => {
     }
   }
   sk.mouseReleased = (e) => {
+    sk.loop();
    if( $('.overlay').length > 0 ) { return false; }
     for (let s of view.sceneSprites) {
       if (s.dragged){
