@@ -30,6 +30,6 @@ export default class FieldViewFactory {
     if(dataField instanceof MultipleValueList){
       return new MultipleValueListView( id, dataField, entity, control );
     }
-    console.error("No matching View for", id, dataField, entity, control, dataField.constructor.name);
+    console.error("No matching View for", id, dataField, entity, control);
   }
 }

@@ -13,6 +13,7 @@ export default class Scene extends FieldContainer{
 
     this.active = false;
     this.t = params.t || 0.5;
+    this.className = "Scene";
 
     this.set("name", params.name);
     this.set("image", params.image);

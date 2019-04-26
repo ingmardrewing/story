@@ -14,7 +14,10 @@ import UpdateModelFieldCommand from './UpdateModelFieldCommand.js';
 import ModalDialogue from '../view/ModalDialogue.js';
 import Params from './Params.js';
 import Story from '../model/Story.js';
+import Value from '../model/Value.js';
+import Character from '../model/Character.js';
 import Location from '../model/Location.js';
+import Scene from '../model/Scene.js';
 
 export default class Control {
   constructor(model, service) {
@@ -35,21 +38,15 @@ export default class Control {
     this.commandQueue = new CommandQueue(this.view);
   }
 
-  
-
   select(entity){
     let v = this.view;
-    switch(entity.constructor.name){
-      case "Value": {
+    if(entity instanceof Value){
         v.scope = entity;
         v.updateDetailView(entity);
         v.update();
-        break;
-      }
-      default: {
-        v.updateDetailView(entity);
-      }
+        return;
     }
+    v.updateDetailView(entity);
   }
 
   addValue(valueName) {
@@ -85,27 +82,25 @@ export default class Control {
 
   delete(entity) {
     let params = this.getParams();
-    switch(entity.constructor.name) {
-      case "Value":{
+    if(entity instanceof Value){
         params.value = entity;
         this.commandQueue.addCommand(new DeleteValueCommand(params));
-        break;
-      }
-      case "Character":{
-        params.character= entity;
-        this.commandQueue.addCommand(new DeleteCharacterCommand(params));
-        break;
-      }
-      case "Location":{
-        params.location = entity;
-        this.commandQueue.addCommand(new DeleteLocationCommand(params));
-        break;
-      }
-      case "Scene":{
-        params.scene = entity;
-        this.commandQueue.addCommand(new DeleteSceneCommand(params));
-        break;
-      }
+        return;
+    }
+    if(entity instanceof Character){
+      params.character= entity;
+      this.commandQueue.addCommand(new DeleteCharacterCommand(params));
+      return;
+    }
+    if(entity instanceof Location){
+      params.location = entity;
+      this.commandQueue.addCommand(new DeleteLocationCommand(params));
+      return;
+    }
+    if(entity instanceof Scene){
+      params.scene = entity;
+      this.commandQueue.addCommand(new DeleteSceneCommand(params));
+    return;
     }
   }
 
@@ -115,7 +110,7 @@ export default class Control {
     }
 
     let md = new ModalDialogue(
-      `Edit ${entity.constructor.name}`,
+      `Edit ${entity.className}`,
       $('body'),
       entity,
       this);

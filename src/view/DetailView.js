@@ -19,7 +19,7 @@ export default class DetailView {
   createHeadline(){
     let e = this.entity;
     let control = this.control;
-    let $headlineContainer = $(`<h2 class="storyItem">${this.entity.constructor.name}: ${this.entity.get('name')}</h2>`);
+    let $headlineContainer = $(`<h2 class="storyItem">${this.entity.className}: ${this.entity.get('name')}</h2>`);
 
     let $delete = $(`<a class="delete">delete</a>`);
     $delete.click(function(){ control.delete(e); });

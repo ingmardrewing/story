@@ -1,12 +1,13 @@
-import * as $ from 'jquery'
-import hotkeys from 'hotkeys-js'
-import * as p5 from 'p5'
+import * as $ from 'jquery';
+import hotkeys from 'hotkeys-js';
+import * as p5 from 'p5';
 import Model from './model/Model.js';
 import View from './view/View.js';
 import Control from './control/Control.js';
 import Service from './service/Service.js';
+import RenderTimer from './view/RenderTimer.js';
 
-let service, model, view, control, openSans;
+let service, model, view, control, openSans, renderTimer;
 
 let s = (sk) => {
   sk.preload = () => {
@@ -14,11 +15,12 @@ let s = (sk) => {
   }
 
   sk.setup = () => {
+    renderTimer = new RenderTimer(sk);
     service = new Service();
     model = new Model();
     control = new Control(model, service);
     service.setControl(control);
-    view = new View(model, control);
+    view = new View(model, control, renderTimer);
     control.setView(view);
     model.initFields();
 
@@ -78,14 +80,14 @@ let s = (sk) => {
         }
       }
     }
-    view.checkLoopNecessity(sk);
+    view.checkLoopNecessity(renderTimer);
   }
 
   sk.mousePressed = (e) => {
-    sk.loop();
-  if( $('.overlay').length > 0 ) {
+    if( $('.overlay').length > 0 ) {
       return ;
     }
+    sk.loop();
     let noHit = true;
     for (let s of view.sceneSprites) {
       let distance = sk.dist(sk.mouseX, sk.mouseY, s.x, s.y );
@@ -105,18 +107,18 @@ let s = (sk) => {
       control.createSceneAt(sk.mouseX, sk.mouseY);
       view.updateSceneSprites();
     }
+    view.checkLoopNecessity(renderTimer);
   }
   sk.mouseDragged = (e) => {
-    sk.loop();
    if( $('.overlay').length > 0 ) { return false; }
     for (let s of view.sceneSprites) {
       if (s.dragged) {
         s.setPosition(sk.mouseX, sk.mouseY);
       }
     }
+    view.checkLoopNecessity(renderTimer);
   }
   sk.mouseReleased = (e) => {
-    sk.loop();
    if( $('.overlay').length > 0 ) { return false; }
     for (let s of view.sceneSprites) {
       if (s.dragged){
@@ -124,6 +126,7 @@ let s = (sk) => {
         s.dragged = false;
       }
     }
+    view.checkLoopNecessity(renderTimer);
   }
 }
 

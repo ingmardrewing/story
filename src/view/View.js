@@ -12,7 +12,7 @@ import List from './List.js';
 import MainNavi from './MainNavi.js';
 
 export default class View {
-  constructor(model, control){
+  constructor(model, control, renderTimer){
     if( ! model){
       console.error("Model missing");
     }
@@ -21,6 +21,7 @@ export default class View {
       console.error("Control missing");
     }
     this.control = control;
+    this.renderTimer = renderTimer;
     this.thres = {
       START: 0,
       PP1: 0.25,
@@ -160,15 +161,16 @@ export default class View {
     v.display();
   }
 
-  checkLoopNecessity(sk){
+  checkLoopNecessity(){
     let necessary = false;
     this.sceneSprites.forEach((s, k) => {
       if(! s.hasArrived()) {
         necessary = true;
       }
     });
-    if (!necessary){
-      sk.noLoop();
+    if (!necessary && !this.renderTimer.isSet()){
+      console.log("stting timer ..");
+      this.renderTimer.setTimer(200);
     }
   }
 }
