@@ -1,4 +1,4 @@
-import * as $ from 'jquery'
+import * as $ from 'jquery';
 
 export default class FieldView {
   constructor(id, dataField, entity, control){

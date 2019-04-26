@@ -1,4 +1,4 @@
-import * as $ from 'jquery'
+import * as $ from 'jquery';
 import FieldViewFactory from './FieldViewFactory.js';
 
 export default class DetailView {
@@ -38,8 +38,9 @@ export default class DetailView {
     let e = this.entity;
     let control = this.control;
 
-    e.fields.forEach(function(v, fieldType ){
-      let id = "viewField_" + c++;
+    e.fields.forEach(function(v, fieldType){
+      let id = "viewField_" + c;
+      c += 1;
       let fv = FieldViewFactory.makeFormField(id, fieldType, e, control);
       if (fieldType.name === 'image'){
         $storyItem.prepend(fv.assembleView());
