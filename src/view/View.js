@@ -169,7 +169,6 @@ export default class View {
       }
     });
     if (!necessary && !this.renderTimer.isSet()){
-      console.log("stting timer ..");
       this.renderTimer.setTimer(200);
     }
   }

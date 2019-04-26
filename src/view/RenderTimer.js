@@ -5,7 +5,6 @@ export default class RenderTimer {
   setTimer(millisTilHalt){
     let self = this;
     this.id = setTimeout(()=>{
-      console.log("Halting ..");
       clearTimeout(self.id);
       self.id = undefined;
       self.sk.noLoop();
