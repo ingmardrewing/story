@@ -4,11 +4,11 @@ import LongTextView from './LongTextView.js';
 import SingleValueListView from './SingleValueListView.js';
 import MultipleValueListView from './MultipleValueListView.js';
 
-import Image from '../model/Image.js';
-import ShortText from '../model/ShortText.js';
-import LongText from '../model/LongText.js';
-import SingleValueList from '../model/SingleValueList.js';
-import MultipleValueList from '../model/MultipleValueList.js';
+import Image from '../model/Image.ts';
+import ShortText from '../model/ShortText.ts';
+import LongText from '../model/LongText.ts';
+import SingleValueList from '../model/SingleValueList.ts';
+import MultipleValueList from '../model/MultipleValueList.ts';
 
 export default class FieldViewFactory {
   static makeFormField(id, dataField, entity, control) {

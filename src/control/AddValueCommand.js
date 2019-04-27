@@ -1,5 +1,5 @@
 import Command from './Command.js';
-import Value from '../model/Value.js';
+import Value from '../model/Value';
 
 export default class AddValueCommand extends Command {
   do() {

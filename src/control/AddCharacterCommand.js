@@ -1,5 +1,5 @@
 import Command from './Command.js';
-import Character from '../model/Character.js';
+import Character from '../model/Character.ts';
 
 export default class AddCharacterCommand extends Command {
   do(){

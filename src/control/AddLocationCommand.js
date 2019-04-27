@@ -1,5 +1,5 @@
 import Command from './Command.js';
-import Location from '../model/Location.js';
+import Location from '../model/Location';
 
 export default class AddLocationCommand extends Command {
   do() {

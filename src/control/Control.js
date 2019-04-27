@@ -11,13 +11,15 @@ import AddSceneCommand from './AddSceneCommand.js';
 import MoveSceneCommand from './MoveSceneCommand.js';
 import RemoveSceneTypeCommand from './RemoveSceneTypeCommand.js';
 import UpdateModelFieldCommand from './UpdateModelFieldCommand.js';
-import ModalDialogue from '../view/ModalDialogue.js';
 import Params from './Params.js';
-import Story from '../model/Story.js';
-import Value from '../model/Value.js';
-import Character from '../model/Character.js';
-import Location from '../model/Location.js';
-import Scene from '../model/Scene.js';
+
+import ModalDialogue from '../view/ModalDialogue.js';
+
+import Story from '../model/Story.ts';
+import Value from '../model/Value.ts';
+import Character from '../model/Character.ts';
+import Location from '../model/Location.ts';
+import Scene from '../model/Scene.ts';
 
 export default class Control {
   constructor(model, service) {

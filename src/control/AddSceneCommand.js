@@ -1,5 +1,5 @@
 import Command from './Command.js';
-import Scene from '../model/Scene.js';
+import Scene from '../model/Scene';
 
 export default class AddSceneCommand extends Command {
   do() {
