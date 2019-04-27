@@ -40,7 +40,8 @@ export default class List {
   createList(){
     let $c = this.$container;
     let control = this.control;
-    this.entities.forEach(function(obj:FieldContainer, value:number){
+    this.entities.forEach(function(v:any, k:any){
+      let obj :any = v.get ? v : k;
       let l;
       if (obj.get("name") === "Suspense"){
         l = new ListItemConst(obj, control);
