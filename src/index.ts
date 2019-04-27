@@ -1,9 +1,9 @@
 var hotkeys = require('hotkeys-js').default;
 
 import Model from './model/Model';
-import View from './view/View.js';
-import Control from './control/Control.js';
-import Service from './service/Service.js';
+import View from './view/View';
+import Control from './control/Control';
+import Service from './service/Service';
 
 let service :Service;
 let model :Model;

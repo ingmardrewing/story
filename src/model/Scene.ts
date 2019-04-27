@@ -2,7 +2,7 @@ import FieldContainer from './FieldContainer';
 import Character from './Character';
 import Model from './Model';
 import Value from './Value';
-import SceneSprite from '../view/SceneSprite.js';
+import SceneSprite from '../view/SceneSprite';
 
 export default class Scene extends FieldContainer{
   active :boolean;

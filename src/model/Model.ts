@@ -11,9 +11,9 @@ import SingleValueList from './SingleValueList';
 export default class Model {
   sceneTypeNames :any;
   story :Story;
-  sceneTypes :any;
-  characterArchetypes :any;
-  throughlines :any;
+  sceneTypes :Array<Enumish>;
+  characterArchetypes :Array<Enumish>;
+  throughlines :Array<Enumish>;
   fields :Map<string, Field>;
 
   constructor() {
