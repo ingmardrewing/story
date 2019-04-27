@@ -1,3 +1,5 @@
+var hotkeys = require('hotkeys-js').default;
+
 import Model from './model/Model.js';
 import View from './view/View.js';
 import Control from './control/Control.js';
@@ -18,8 +20,8 @@ model.initFields();
 
 view.initP5();
 
+console.log(hotkeys)
 
-var hotkeys = require('hotkeys-js');
 hotkeys(
   "ctr+z,cmd+z",
   function keyPressed() { control.undo();}
