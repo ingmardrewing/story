@@ -2,6 +2,7 @@ export default class RenderTimer {
   constructor(sk){
     this.sk = sk;
   }
+
   setTimer(millisTilHalt){
     let self = this;
     this.id = setTimeout(()=>{
@@ -10,6 +11,7 @@ export default class RenderTimer {
       self.sk.noLoop();
     }, millisTilHalt);
   }
+
   isSet() {
     return this.id ? true : false;
   }
