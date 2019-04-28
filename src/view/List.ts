@@ -39,18 +39,19 @@ export default class List {
 
   createList(){
     let $c = this.$container;
-    let control = this.control;
+    let self = this;
     this.entities.forEach(function(v:any, k:any){
       let obj :any = v.get ? v : k;
-      let l;
-      if (obj.get("name") === "Suspense"){
-        l = new ListItemConst(obj, control);
-      }
-      else {
-        l = new ListItem(obj, control);
-      }
+      let l = self.createListItem(obj, self.control);
       $c.append(l.renderJQuery());
     });
+  }
+
+  createListItem(obj :any, control: Control) {
+    if (obj.persistent){
+      return new ListItemConst(obj, control);
+    }
+    return new ListItem(obj, control);
   }
 
   createAdd(){
@@ -62,5 +63,5 @@ export default class List {
     });
 
     this.$container.append($btn);
-  };
+  }
 }

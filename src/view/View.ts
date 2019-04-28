@@ -187,7 +187,7 @@ export default class View {
   array2Map (arr :Array<any>) :Map<any, any>{
     let m :Map<any, any> = new Map();
     for (let item of arr){
-      m.set(m, 0);
+      m.set(item, 0);
     }
     return m;
   }

@@ -69,8 +69,11 @@ export default class Control {
     if(this.model.story.getValueByName(valueName)) {
       return;
     }
+
     let params :Params = this.getParams();
     params.valueName = valueName ? valueName : "New Value";
+    params.persistent = valueName === "Suspense";
+
     this.commandQueue.addCommand(new AddValueCommand(params));
   }
 
@@ -148,6 +151,8 @@ export default class Control {
     }
     charData.name = params && params.name ? params.name : "New Character" ;
     charData.id = "character_" + this.characterCount;
+
+    console.log("charData", charData);
 
     this.commandQueue.addCommand(new AddCharacterCommand(charData));
     this.characterCount += 1;
@@ -371,6 +376,8 @@ export default class Control {
     data.characters.forEach(function(params:any){
       c.addCharacter(params);
     });
+
+    console.log(this.model.story.characters);
 
     this.view.scope = this.model.story.values.entries().next().value[0];
 

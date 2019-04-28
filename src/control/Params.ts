@@ -10,6 +10,8 @@ import Scene from '../model/Scene';
 
 export default class Params {
   model :Model;
+  colorKey: boolean;
+  persistent: boolean;
   control :Control;
   service :Service;
   view :View;
